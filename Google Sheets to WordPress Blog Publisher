@@ -1,0 +1,449 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "82c0c8be-7bf3-4115-8b2c-31ee516afb66",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        120,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Fetch URLS\n - Fetch URLS from google sheets\n - Loop over each url.\n - Extract Title , Image and Content.\n",
+        "height": 414,
+        "width": 1057,
+        "color": 3
+      },
+      "id": "36c523c9-cffd-4772-97fe-c5359e8feaeb",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        460,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://rau.delucks.hostpress.me/wp-json/wp/v2/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "={{ $binary.data.mimeType }}"
+            },
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}.{{ $binary.data.fileExtension }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "498c5006-b099-4cb7-9874-7b8b31f7426c",
+      "name": "Upload Feature Image to media in wordpress",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        680
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://rau.delucks.hostpress.me/wp-json/wp/v2/posts/{{ $('Wordpress').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f0f667b-d630-4135-a352-ce2da4a2ec73",
+      "name": "Update Post with featured image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3020,
+        500
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "- Create Post in Wordpress.\n- Download Feature Image.\n- Upload Feature Image to Wordpress.\n- Update post with feature image in Wordpress.",
+        "height": 382,
+        "width": 923,
+        "color": 4
+      },
+      "id": "6414761f-ad7d-4584-b338-1399483da9bc",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1D-lLulgfPwX0sjQ2EY2j-BODypx_i5sK0xd3eYuPAR8",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "1758977629",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "dae61714-44c9-438b-a95b-367372d25773",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        460,
+        680
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K9zxvqWI5eKzjkHM",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      },
+      "id": "14de46cc-965b-46ea-aeda-68ec1e7160d3",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        640,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $('Set Url To Extract Details From').all();  // Assuming the URL is in an input field\n// const slug = url.split('/').pop();\n\n// return { json: { slug } };\nreturn items.map(item => {\n    const url = item.json.url;  // Extract URL from each item\n    const slug = url.split('/').pop();  // Get the last part of the URL\n\n    return { json: { slug } };  // Return the processed item\n});\n"
+      },
+      "id": "1e00c429-e773-4771-8788-a12523c3be18",
+      "name": "Extract Slug",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1080,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Extract Content and Image Url  from Rss Feed\\'s Content').item.json.image.src }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "414d48d3-1b80-49d4-90ec-efb5670493fc",
+      "name": "Download Feature Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2660,
+        680
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "title",
+              "cssSelector": "#main > div.outer.blogOuter.blogDetailOuter > div:nth-child(1) > h1"
+            },
+            {
+              "key": "image",
+              "cssSelector": "#main > div.outer.blogOuter.blogDetailOuter > div.text > div:nth-child(1) > div > img",
+              "returnValue": "attribute"
+            },
+            {
+              "key": "bottomContent",
+              "cssSelector": "#main > div.outer.blogOuter.blogDetailOuter > div.text > div.sw.md",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "748bfdc5-507e-465f-9370-70e0ed80a580",
+      "name": "Extract Content and Image Url  from Rss Feed's Content",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1460,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Set Url To Extract Details From').item.json.url }}",
+        "options": {}
+      },
+      "id": "aa84793c-915f-4b40-87ef-ebe88599718a",
+      "name": "Fetch Page From RSS Feed Article's URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1280,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c5b9b45-0fe3-46e0-9067-87e62ecaf550",
+              "name": "url",
+              "value": "={{ $json.URL }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2e112cc1-27ee-4f5f-8053-37d91b3c98ed",
+      "name": "Set Url To Extract Details From",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        880,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "additionalFields": {
+          "content": "=\n {{ $json.bottomContent }}",
+          "slug": "={{ $('Extract Slug').item.json.slug }}",
+          "status": "draft"
+        }
+      },
+      "id": "40e76065-cea4-4aec-a66e-b0135e089ff2",
+      "name": "Wordpress",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [
+        2440,
+        680
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://rau.delucks.hostpress.me//wp-json/wp/v2/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "9e14ff7d-85bc-43e4-ac1f-2b765bfdc23b",
+      "name": "Upload Feature Image to media in wordpress1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2340,
+        300
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Feature Image to media in wordpress": {
+      "main": [
+        [
+          {
+            "node": "Update Post with featured image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Post with featured image": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set Url To Extract Details From",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Slug": {
+      "main": [
+        [
+          {
+            "node": "Fetch Page From RSS Feed Article's URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Feature Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Feature Image to media in wordpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Content and Image Url  from Rss Feed's Content": {
+      "main": [
+        [
+          {
+            "node": "Wordpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Page From RSS Feed Article's URL": {
+      "main": [
+        [
+          {
+            "node": "Extract Content and Image Url  from Rss Feed's Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Url To Extract Details From": {
+      "main": [
+        [
+          {
+            "node": "Extract Slug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress": {
+      "main": [
+        [
+          {
+            "node": "Download Feature Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  }
+}
