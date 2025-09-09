@@ -1,0 +1,492 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -40
+      ],
+      "id": "3edfbc55-ef2f-413a-9b7c-0049995b5756",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1gaN33hwwsOFpQA09jegcgbaZ5RT_wCK9/view?usp=drive_link",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        520,
+        40
+      ],
+      "id": "6ff3dc81-7758-4434-a439-6e52d8f061e2",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -40
+      ],
+      "id": "06fdfc53-63af-4a1c-a140-ad1820403f03",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.text\n\n// Split the text into lines\nconst lines = text.split(\"\\n\").slice(4); // Skip the first 4 lines (headers)\n\n// Process each line\nconst extractedData = lines.map(line => {\n    const parts = line.trim().split(/\\s+/); // Split by spaces\n\n    if (parts.length < 3) return null; // Skip invalid lines\n\n    const anrede = parts.shift(); // Remove 'Herr' or 'Frau'\n    const firstName = parts.shift(); // First name\n\n    // Find the last name (could be more than one word if hyphenated)\n    let lastName = parts.shift(); // Ensure last name is assigned\n\n    // Remaining text is the company name\n    const companyName = parts.join(\" \");\n\n    return { json: { firstName, lastName, companyName } };\n}).filter(Boolean);\n\n\nreturn{\n  json:{\n    extractedData:extractedData\n  }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -60
+      ],
+      "id": "c7b3e90b-ea4b-48df-b6ce-b49620ccf6ed",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "url": "https://customsearch.googleapis.com/customsearch/v1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cx",
+              "value": "527ecb8eea3d54c80"
+            },
+            {
+              "name": "key",
+              "value": "AIzaSyDHT2jqu8E05BQJg-F_j41jDyvJNBjTu8E"
+            },
+            {
+              "name": "q",
+              "value": "={{ $json.json.firstName }} {{ $json.json.lastName }} {{ $json.json.companyName}} site:linkedin.com/in "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1380,
+        -100
+      ],
+      "id": "56b8142f-5b9b-44a5-9ce3-a66043dae2f8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "extractedData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        -40
+      ],
+      "id": "db3d0cbd-253c-47a8-9877-9b45de72e2cf",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apollo.io/api/v1/contacts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "first_name",
+              "value": "=test"
+            },
+            {
+              "name": "last_name",
+              "value": "=test"
+            },
+            {
+              "name": "label_names[]",
+              "value": "Kunden"
+            },
+            {
+              "name": "organization_name",
+              "value": "weik.online GmbH"
+            },
+            {
+              "name": "organization_id",
+              "value": "6741bd226c16840001cfde28"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "nN0l9bbh07JuH2BXYr8tog"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1720,
+        -300
+      ],
+      "id": "90ce3096-3b9c-4b47-beab-652243f269b5",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1940,
+        -300
+      ],
+      "id": "7f810f15-ade3-441e-9ce8-9b213691a64e",
+      "name": "Google Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "__CUSTOM_API_CALL__"
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2160,
+        -300
+      ],
+      "id": "a7976332-32ce-4164-a020-99feede66fd4",
+      "name": "Google Drive2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": " https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "'1EVS-vycV01Zlvrj5xXeRQdikAwedV3JG' in parents"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name,mimeType)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2380,
+        -300
+      ],
+      "id": "a00cf152-4bc9-4926-92a2-c449e8855020",
+      "name": "HTTP Request3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apollo.io/api/v1/mixed_companies/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q_organization_name",
+              "value": "={{ $('Split Out').item.json.json.companyName }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "nN0l9bbh07JuH2BXYr8tog"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1420,
+        80
+      ],
+      "id": "76817522-7238-4de7-b0dd-bb4175aacde0",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1EVS-vycV01Zlvrj5xXeRQdikAwedV3JG",
+          "mode": "id"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -380
+      ],
+      "id": "fc519f18-cdb6-480b-a1d9-2dcb18784c14",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apollo.io/api/v1/contacts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "first_name",
+              "value": "={{ $('Split Out').item.json.json.firstName }}"
+            },
+            {
+              "name": "last_name",
+              "value": "={{ $('Split Out').item.json.json.lastName }}"
+            },
+            {
+              "name": "organization_name",
+              "value": "={{ $json.organizations[0].name }}"
+            },
+            {
+              "name": "label_names[]",
+              "value": "embis"
+            },
+            {
+              "name": "organization_id",
+              "value": "={{ $json.organizations[0].id }}"
+            },
+            {
+              "name": "linkedin_url",
+              "value": "={{ $('HTTP Request').item.json.items[0].link }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "nN0l9bbh07JuH2BXYr8tog"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        0
+      ],
+      "id": "85757b81-1368-44b3-9bab-0b31a500bc51",
+      "name": "HTTP Request5"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "Google Drive2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive2": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  }
+}
