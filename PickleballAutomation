@@ -1,0 +1,818 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw",
+          "mode": "list",
+          "cachedResultName": "n8n - automation - Champs Pickleball - Master Video Link & Data Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        760,
+        480
+      ],
+      "id": "16e5a222-200d-4797-9baa-9618656b9064",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K9zxvqWI5eKzjkHM",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1020,
+        500
+      ],
+      "id": "4b5324c3-69a1-47fe-ace4-f0ea23c37387",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json['Share Transcription Link'] }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1460,
+        500
+      ],
+      "id": "3f7ce1a0-ad6c-46d6-9291-5a9a30fdc24a",
+      "name": "Google Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\n// const text= $input.first().json.transcription;\n//  const t = text.replace(/[\\r\\n]/g, \" \")\nconst fileName =$('Loop Over Items').item.json['File Name'];\nconsole.log(\"fileName\",fileName);\nconst match = fileName.match(/^(\\d+)/)\nconst point =match ? parseInt(match[1]) : null;\nconst prompt= `Master Prompt: Pickleball Game Film Breakdown (Per Match Point) Objective You will be provided with a full video transcript (in a text file) from a professional pickleball match. Your tasks are to: Identify and extract the exact timestamps and corresponding transcript sections for each individual match point played in the game. Analyze the gameplay, strategy, and educational lessons for each individual match point separately—DO NOT combine multiple points into one blog post. Create two blog posts per match point using the attached transcription text file for reference: Long-Form Blog Post (up to 25,000 characters) Mini Blog Post (up to 2,200 characters) Ensure no pop-up windows appear in your output. Each blog post should be displayed in one continuous text format that can be directly pasted to Facebook, Twitter/X, or TikTok without losing formatting. Step 1: Identifying Individual Match Points in the Transcript Look for transitions between points in the transcript. Common transition phrases include: “Let’s move on to the next one.” “Alright, next point.” “Okay, let’s take a look at this one.” “Watch this point all the way through.” “Now we’re back in play.” “Let’s rewind and analyze this.” “That was a great rally! Let’s see what happened.” “Now it’s their serve.” “And with that, the score changes to...” Mark the timestamp where each new point begins and extract that specific section of the transcript. Label each match point in sequence (Point 1, Point 2, Point 3, etc.). Do NOT combine multiple points into a single section. Step 2: Creating the Long Blog Post (Max 25,000 Characters) for Each Individual Match Point For every identified match point, produce a single long-form blog post that follows this structure. Title: Format: [Key Takeaway] – Match Point #X Breakdown from the [Tournament Name] Finals Introduction (150-250 words): Describe what happened in this specific match point. Provide context (who is playing, the stage of the match, and why this point is important). Mention any themes, patterns, or strategies that will be covered. Full Breakdown of the Point (1,500-2,500 words): Walk through the rally step by step, referencing the transcript. Highlight key moments: Where was the advantage gained or lost? Was there a critical decision, mistake, or exceptional play? How did positioning, movement, or shot selection influence the outcome? Offer strategic insights: Why did players make these choices? What alternatives could they have considered? What can the audience learn from these decisions? If needed, compare to previous match points already analyzed but do NOT reference future points. Key Takeaways & Lessons for Players (500-1,000 words): Summarize the 3-5 biggest lessons from this point. Provide actionable advice for different skill levels (beginner, intermediate, advanced). Include mental game insights if relevant (e.g., handling pressure). Conclusion & Call to Action (150-300 words): Recap why this point was significant. Encourage readers to watch the full video for more learning. Include a call to action (e.g., “Try this in your next match!”). Important: Keep the blog post under 25,000 characters. Make sure it can be directly copied and pasted into a social media platform without losing its format. Step 3: Creating the Mini Blog (Max 2,200 Characters) for Each Individual Match Point After creating the long-form version, summarize it into a concise, social-media-friendly mini blog for that same match point. Hook (First 2-3 sentences): Quickly introduce the match point in an engaging way. Example: “This point from the [Tournament Name] finals shows why patience at the net can win championships. Leigh & Anna Leigh Waters vs. Hurricane Tyra Black & Johnson—let’s break it down!” Quick Breakdown (5-7 sentences): Summarize the rally and what happened. Highlight 1-2 key takeaways in short, punchy statements. Final Lesson & Call to Action (2-3 sentences): State the main lesson players can learn. Example: “Next time you’re in a defensive position, don’t panic—reset the point! Watch the full analysis on YouTube!” Hashtags (for social media optimization): Include at least 10-20 relevant hashtags related to pickleball, strategy, and tournament play. Important: Keep the mini blog under 2,200 characters for easy posting on platforms like Instagram, Twitter/X, Facebook, or TikTok. Final Instructions & Guidelines Each individual match point receives: One long-form blog post (25,000 characters max). One mini blog (2,200 characters max). No combining multiple points into one post. Utilize details from the attached transcription text file for accuracy—avoid vague generalizations. Keep future match points spoiler-free—do not hint at what will happen later in the match. Ensure timestamps and transitions are accurate. Avoid any “pop-up” windows or overwriting content in the final output. Present each blog post as a single, continuous block of text suitable for direct copying and pasting. Example of Expected Output (For Match Point #1) Long Blog Post (25,000 characters) Title: “How Anticipation Wins Points – Match Point #1 Breakdown from the PPA Finals” (→ Detailed analysis, breakdown, lessons, and strategy discussion in a single text block.) Mini Blog (2,200 characters) “Ever wonder why top pros seem to know exactly where the ball is going? This point from the PPA Finals shows how anticipation separates elite players from the rest. Watch the full breakdown on YouTube! #Pickleball #PPAFinals #GameAnalysis #PickleballStrategy #DoublesPickleball #LearnPickleball #PickleballLife #SportsBreakdown #CompetitivePickleball #AdvancedPickleball …” Why This Version Works No pop-up windows or separate ephemeral sections. Each match point is treated independently with its own long blog post and short mini blog. References the transcript (text file provided) to ensure accuracy. Spoiler-free for future points. Formats cleanly for Facebook, Twitter/X, TikTok, and other social platforms. \n\nMUST: Text Must be included within 250 characters of the start of any posting: \"Full Breakdown on Youtube: (youtube link pulled from Google Sheet titled “n8n - automation - Champs Pickleball - Master Video Link & Data Sheet”\n`\nconst prompt1 = prompt.replace(/[\\r\\n]/g, \" \")\nreturn{\n  json:{\n  // text:t,\n    point:point,\n    prompt:prompt1\n  }\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        580
+      ],
+      "id": "6a79a573-82a1-46c5-887d-8334a33381a8",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "operation": "create",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-4-TURBO"
+        },
+        "name": "TransriptionPickleBall",
+        "description": "handle transcription provide match point analysis for each point",
+        "instructions": "={{ $json.prompt }}",
+        "knowledgeRetrieval": true,
+        "file_ids": "={{ [$('OpenAI7').item.json.id] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2100,
+        520
+      ],
+      "id": "51e5e74e-1736-4d2b-bb83-c41f136984d4",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "LxS9KzLmU1VUZv5H",
+          "name": "random"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "prompt": "define",
+        "text": "=Tournament name is {{ $('Loop Over Items').item.json['Tournament Name'] }} and master YouTube link is {{ $('Loop Over Items').item.json['Master Youtube Video Link'] }}.\n\nPlease provide a long blog post and a mini blog post for Match Point {{ $('Code').item.json.point }}.\n\nUse the following output format exactly:\n\nLong blog post: [insert long blog post content here],  \nMini blog post: [insert mini blog post content here],\n\nDo not include any formatting like asterisks (*) or hashtags (#) around the labels and content.  \nMake the content engaging by using emojis and icons in the headings and throughout the post.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2280,
+        600
+      ],
+      "id": "98a44664-392f-4751-896f-cd1713d68272",
+      "name": "OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "LxS9KzLmU1VUZv5H",
+          "name": "random"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst content = $(\"OpenAI2\").first().json.output\n const longPostMatch = content.match(/Long blog post:\\s*([\\s\\S]*?)(?=\\nMini blog post:|$)/i);\nconst longPost = longPostMatch ? longPostMatch[1].trim() : null;\n\n// Extract Mini Blog Post\nconst miniPostMatch = content.match(/Mini blog post:\\s*([\\s\\S]*)/i);\nconst miniPost = miniPostMatch ? miniPostMatch[1].trim() : null;\n\nreturn{\n  json:{\n    longBlogPost:longPost,\n    miniBlogPost:miniPost\n  }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2760,
+        780
+      ],
+      "id": "f2c69873-02fb-4d91-a8d3-09946c75e596",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey "
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Code1').item.json.miniBlogPost }}"
+            },
+            {
+              "name": "user",
+              "value": "Champs Pickleball"
+            },
+            {
+              "name": "platform[]",
+              "value": "instagram"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "video",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 6000000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3120,
+        1100
+      ],
+      "id": "de1a55c0-f2e1-470a-beda-5075a5250422",
+      "name": "HTTP Request9",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.upload-post.com/api/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Apikey "
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $('Code1').item.json.miniBlogPost }}"
+            },
+            {
+              "name": "user",
+              "value": "Champs Pickleball"
+            },
+            {
+              "name": "platform[]",
+              "value": "tiktok"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "video",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 6000000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3000,
+        1440
+      ],
+      "id": "1adb2946-5358-44d7-89db-5f10f2daabaa",
+      "name": "HTTP Request11",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('OpenAI7').item.json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        3360,
+        1100
+      ],
+      "id": "8da431b3-5b0f-4442-addb-c88f4b4ecd0a",
+      "name": "OpenAI4",
+      "credentials": {
+        "openAiApi": {
+          "id": "LxS9KzLmU1VUZv5H",
+          "name": "random"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "operation": "deleteAssistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "={{ $('OpenAI').item.json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        3600,
+        880
+      ],
+      "id": "c9ee3fd1-f623-4078-8951-ef0eda599f76",
+      "name": "OpenAI5",
+      "credentials": {
+        "openAiApi": {
+          "id": "LxS9KzLmU1VUZv5H",
+          "name": "random"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1740,
+        380
+      ],
+      "id": "1caf5393-f27e-43b7-802c-d3bca7115865",
+      "name": "OpenAI7",
+      "credentials": {
+        "openAiApi": {
+          "id": "LxS9KzLmU1VUZv5H",
+          "name": "random"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "hours"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2680,
+        500
+      ],
+      "id": "a41feaab-0e4a-4653-b737-b66262b50415",
+      "name": "Wait",
+      "webhookId": "1c348be8-8567-4239-a586-d1ecdb239b77"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw",
+          "mode": "list",
+          "cachedResultName": "n8n - automation - Champs Pickleball - Master Video Link & Data Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "AWS Video Link": "={{ $('Loop Over Items').item.json['AWS Video Link'] }}",
+            "Processed": "Processed"
+          },
+          "matchingColumns": [
+            "AWS Video Link"
+          ],
+          "schema": [
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tournament Name",
+              "displayName": "Tournament Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Share Video Link",
+              "displayName": "Share Video Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Share Transcription Link",
+              "displayName": "Share Transcription Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ChatGPT Drafting Prompt",
+              "displayName": "ChatGPT Drafting Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Master Youtube Video Link",
+              "displayName": "Master Youtube Video Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AWS Video Link",
+              "displayName": "AWS Video Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Processed",
+              "displayName": "Processed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3820,
+        1040
+      ],
+      "id": "abd1789e-3b3e-44f0-bca5-569b304f8111",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K9zxvqWI5eKzjkHM",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v22.0/107124632161204/videos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAATThBvHuC0BO2HHBZAmwm6rXquJ83chL7a0S41vpvxhXAgRfOZCTN8d7vetSZA8iOBScF9w6yDx3fyI7EiCa0PMsY69A7ZA9vxfZBZBFFQ3nLZASCX3PL5v8zielPU4oTPe5VfODzDk8EN9kzMUp7I6eQefPh45HtsrYT8pat3WQ8d4VVnrjFTTdxwPVUnZBxwZD"
+            },
+            {
+              "name": "file_url",
+              "value": "={{ $('Loop Over Items').item.json['AWS Video Link'] }}"
+            },
+            {
+              "name": "published ",
+              "value": "true"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Code1').item.json.longBlogPost }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3180,
+        680
+      ],
+      "id": "911b64ad-5543-46e7-a638-d4608e86acde",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "## Champ PickleballAutomation \n- Fetch all video postings from sheet.\n- Lopp over each posting.\n- Check if posting is already posted if not continue else move baove to next item.\n- Upload transcription file to opne ai.\n- Prepare prompt for the assistant.\n- Create assistant.\n- Generate Long and mini blog post from openai.\n- Upload video to Facebook.\n- Upload video to Instagram.\n- Upload video to Tiktok.\n- Delete transcription file from open ai.\n- Delete assistant.",
+        "height": 1680,
+        "width": 3600,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        -60
+      ],
+      "typeVersion": 1,
+      "id": "11271efe-07a1-4051-be63-5d66569d7dbd",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst intervalHours = 3;\nconst postsToSchedule = 4;\n\n// 🔁 Adjust for Daylight Saving:\n// Use -5 for EST, -4 for EDT\nconst estOffsetHours = -4;\n\nconst now = new Date();\nconst utcNow = now.getTime();\n\n// Convert UTC to EST/EDT\nconst estNow = new Date(utcNow + estOffsetHours * 60 * 60 * 1000);\n\nconst unprocessedItems = items.filter(item => item.json.Processed !== 'Processed');\n\nconst scheduledItems = unprocessedItems.slice(0, postsToSchedule).map((item, index) => {\n  const postTime = new Date(\n    estNow.getTime() +\n    index * intervalHours * 60 * 60 * 1000  \n  );\n\n  // Format the postTime to \"YYYY-MM-DD HH:mm:ss\"\n  const formattedTime = postTime.toISOString().slice(0, 19).replace(\"T\", \" \");\n\n  return {\n    json: {\n      ...item.json,\n      scheduledTime: formattedTime, // templated string with formatted date\n      actualScheduledTime: formattedTime, // optional for reference\n    },\n  };\n});\n\nreturn scheduledItems;\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        300
+      ],
+      "id": "add45efe-8623-4208-b38d-425f0ed22ae4",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Loop Over Items').item.json['AWS Video Link'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2780,
+        980
+      ],
+      "id": "fa1ab523-aee3-4e1c-bdf0-7e0e0c7fb5f2",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        540,
+        480
+      ],
+      "id": "754dd8ea-350c-4342-b58e-c23d4ffcf4bd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Inputs: items is an array of video URLs\nconst items = $input.all();\n\nconst startHour = 6; // 6 AM EST\nconst intervalHours = 3;\nconst postsPerDay = 4;\nconst timeZoneOffset = -4; // EST is UTC-4 (consider DST if needed)\n\nconst scheduledItems = [];\nconst baseDate = new Date(); // today\nbaseDate.setUTCHours(startHour - timeZoneOffset, 0, 0, 0); // start at 6 AM EST\nconst unprocessedItems = items.filter(item => item.json.Processed !== 'Processed');\nfor (let i = 0; i < 4; i++) {\n  const dayOffset = Math.floor(i / postsPerDay);\n  const postIndex = i % postsPerDay;\n\n  const postTime = new Date(baseDate);\n  postTime.setUTCDate(baseDate.getUTCDate() + dayOffset);\n  postTime.setUTCHours(startHour + (intervalHours * postIndex) - timeZoneOffset);\n\n  scheduledItems.push({\n    json: {\n      ...unprocessedItems[i].json,\n      scheduledTime: postTime.toISOString(),\n    },\n  });\n}\n\nreturn scheduledItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1720,
+        140
+      ],
+      "id": "81d0fda6-6961-4b69-8520-804568684c6f",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1qXpyjN8ooNfEebtArItMBUZWjhra5e4s/view?usp=drive_link",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1180,
+        480
+      ],
+      "id": "41c5b90a-4d8c-474b-ab22-a1423ebfa186",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "OpenAI2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI2": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request11": {
+      "main": [
+        [
+          {
+            "node": "OpenAI4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI4": {
+      "main": [
+        [
+          {
+            "node": "OpenAI5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI5": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI7": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request9",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  }
+}
