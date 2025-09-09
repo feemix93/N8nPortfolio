@@ -1,0 +1,304 @@
+{
+  "name": "Rss feed",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "feedUrl": "https://www.wecook.fr/feed"
+      },
+      "id": "ab5db033-34e7-413b-b929-bb4a0d7a487e",
+      "name": "RSS Feed Trigger",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pinterest.com/v1/pins/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "d2718132-42d2-47b2-a4c3-61b14b8486ac",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v12.0/oauth/access_token",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "fb_exchange_token"
+            },
+            {
+              "name": "client_id",
+              "value": "982048950133980"
+            },
+            {
+              "name": "client_secret",
+              "value": "42dc833a6f26acc7fdfe63a8b160bf84"
+            },
+            {
+              "name": "fb_exchange_token",
+              "value": "EAAN9KxbTJNwBO8CMb9Eaz6WsuiKQt9z8f5xy2AtagVdGGyBcxI6CSoE4io3Kr61Ii3TZBZB8gunhCzK6ky5dB8JEB2MMOJ33RTskXeoR2VdVeT3P5ZBtYN156Vat7tEGAyMFZAsZAYseHORAlWkeOpA0Qcf85NaOhNmr8Tk7dIDtqKOOYrQGAtNELt2A08KvMj23j0IPvGJRo1hqy1DviDgZDZD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "feaa5b2f-c185-4263-b73d-87ecb5445633",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/384239128096383/feed",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $('RSS Feed Trigger').item.json.title }}"
+            },
+            {
+              "name": "access_token",
+              "value": "="
+            },
+            {
+              "name": "link",
+              "value": "={{ $('RSS Feed Trigger').item.json.link }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "afcd14c6-9ef6-4feb-b32a-e1a01200af4f",
+      "name": "HTTP Request2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 50
+            }
+          ]
+        }
+      },
+      "id": "fcde01fb-8f63-4cf1-9570-7d7e11035830",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "fbtoken",
+        "options": {}
+      },
+      "id": "44b25a77-c715-474c-b185-35337113e48e",
+      "name": "MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        180,
+        80
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "a88UxYCEPZA23mR5",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8ba6b77a-232e-4b0b-9a3b-22d080571d26",
+              "name": "access_token",
+              "value": "={{ $json.access_token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4cde95e6-4fe3-4b76-9d0c-7641f31de9e3",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        600,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "fbtoken",
+        "fields": "={{ $json.access_token }}",
+        "options": {}
+      },
+      "id": "fc4f46dd-c20e-49e3-b8de-51bad1bc0b37",
+      "name": "MongoDB1",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        800,
+        100
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "a88UxYCEPZA23mR5",
+          "name": "MongoDB account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "fbtoken",
+        "options": {}
+      },
+      "id": "af087711-1540-4913-88ff-2161ddfc5473",
+      "name": "MongoDB2",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        200,
+        280
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "a88UxYCEPZA23mR5",
+          "name": "MongoDB account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "MongoDB2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "MongoDB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "MongoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "137b1097-f698-42ef-b9c3-9fb88c477f64",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  },
+  "id": "9W8215X7fgDw2BM6",
+  "tags": []
+}
