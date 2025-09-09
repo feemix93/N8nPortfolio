@@ -1,0 +1,493 @@
+{
+  "name": "Facebook Meme  Final",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "05eae605-d3d5-4917-b76d-773b8b3d33d0",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -300,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v17.0",
+        "node": "105548467815493",
+        "edge": "=photos",
+        "sendBinaryData": true,
+        "binaryPropertyName": "file:data",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "access_token",
+                "value": "={{ $('Fetching FB Page access token').item.json.access_token }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "25deb332-d2e1-43a5-96dd-b609ece8b440",
+      "name": "Facebook Graph API",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        980,
+        1000
+      ],
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "uSaejrARKzfrA5aC",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "fbtoken",
+        "options": {}
+      },
+      "id": "3b8de94b-3645-41f4-87ad-33156c0c2bb3",
+      "name": "Fetching FB Page access token",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        600,
+        820
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "FqXbSu6RCYuaHpyu",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "13bc4ee8-18a8-40d9-bee9-f54e15a2fa93",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -660,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "list",
+        "useQueryString": true,
+        "queryString": " '1Lvtyb5R1c_27dbN7rLrGFcdKdyX1MwS2' in parents",
+        "options": {}
+      },
+      "name": "getting image IDs",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        960
+      ],
+      "id": "97f8e778-2a24-4920-b567-437094843987",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "5bfSy7Ifli57DBD2",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef5a0108-0ff9-4568-bf4e-3b2c3b415fe1",
+              "name": "currentImgID",
+              "value": "={{ $('Loop Over Items').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c0d90c4e-29f3-490b-879f-476bb13d608c",
+      "name": "Set current image value",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -60,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "uploaded_image_ids",
+        "options": {}
+      },
+      "id": "fe56de3f-3fe7-4797-bcad-6eecb0093e49",
+      "name": "Fetching all uploaded images data",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        40,
+        780
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "FqXbSu6RCYuaHpyu",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const imageIDs = $('Fetching all uploaded images data').first().json.imageIds;\nconst currentImageID=$('Loop Over Items').item.json.id;\nconsole.log(\"current Id\",currentImageID);\nconsole.log(\"imageIDs\",imageIDs)\nconst foundImage=\"\";\nconst exists = imageIDs.includes(currentImageID);\n\n  \nconsole.log(\"exxxxissssttssss\",exists)\n    return{\n    json:{\n    imageExists:exists\n    }}"
+      },
+      "id": "89e81d38-c395-4327-9b30-9bdd9666c496",
+      "name": "Confirming if the current image is uploaded",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        100,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "0e48dab2-f679-4068-b960-310cc54c4477",
+              "leftValue": "={{ $json.imageExists }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a75930bb-d453-427b-9f4b-344dce1d72fe",
+      "name": "Check If image uploaded",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        380,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $('Loop Over Items').item.json.id }}?alt=media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "392d0f16-a1db-4ff5-9c58-cf393328bbb3",
+      "name": "Downloading image from drive folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        460
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "5bfSy7Ifli57DBD2",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/105548467815493/photos",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "source",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "access_token",
+              "value": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "65bed392-027c-4610-913c-950c8d55f02b",
+      "name": "Facebook token if found any token error",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        980,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0704803f-781c-4255-8b2a-47f7b0bf3250",
+              "name": "imageIds",
+              "value": "={{ $json.imageIDs }}",
+              "type": "array"
+            },
+            {
+              "id": "a8a55d57-3b21-441d-b154-259ed596e9cf",
+              "name": "_id",
+              "value": "={{ $json.collectionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a76eaa7f-54da-4c46-be99-e563c1ba479a",
+      "name": "Setting values to update in DB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        1580,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "=uploaded_image_ids",
+        "updateKey": "_id",
+        "fields": "=imageIds",
+        "upsert": true,
+        "options": {}
+      },
+      "id": "57173b82-c7a6-4e83-ae0a-a6c19d8ce8a7",
+      "name": "Updating image ID's",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        1260
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "FqXbSu6RCYuaHpyu",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const imageIds = $('Fetching all uploaded images data').first().json.imageIds||[];\nlet imageIdsArray=[];\n\nconst currentImgID = $('Loop Over Items').item.json.id;\nconst id = $('Fetching all uploaded images data').item.json._id\nconsole.log(\"5555555\",$('Fetching all uploaded images data').item.json._id)\nif(imageIds.length===0){\nimageIdsArray[0]=currentImgID\n}\nelse{\nimageIdsArray=imageIds;\nimageIdsArray.push(currentImgID);\n}\n\nreturn{\njson:{\nimageIDs:imageIdsArray,\ncollectionId:id\n}}"
+      },
+      "id": "12706e30-2cf2-4bbb-bc12-1dfe606317aa",
+      "name": "Updating image IDs been uploaded already",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        680
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Set current image value",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Graph API": {
+      "main": [
+        [
+          {
+            "node": "Updating image IDs been uploaded already",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetching FB Page access token": {
+      "main": [
+        [
+          {
+            "node": "Downloading image from drive folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "getting image IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getting image IDs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set current image value": {
+      "main": [
+        [
+          {
+            "node": "Fetching all uploaded images data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetching all uploaded images data": {
+      "main": [
+        [
+          {
+            "node": "Confirming if the current image is uploaded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirming if the current image is uploaded": {
+      "main": [
+        [
+          {
+            "node": "Check If image uploaded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If image uploaded": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetching FB Page access token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Downloading image from drive folder": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook token if found any token error": {
+      "main": [
+        [
+          {
+            "node": "Facebook Graph API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setting values to update in DB": {
+      "main": [
+        [
+          {
+            "node": "Updating image ID's",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updating image IDs been uploaded already": {
+      "main": [
+        [
+          {
+            "node": "Setting values to update in DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2a9a5433-5386-473f-9ced-101194f4865f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b4fda353d13fbd40c0e4a83897072a05fd9b2346cbbd6e28f12e40f7f29a7e2f"
+  },
+  "id": "ehAJfeeuFeN6CHgR",
+  "tags": []
+}
