@@ -1,0 +1,351 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        -40
+      ],
+      "id": "af24f6a7-3b8b-41ea-91e5-5d0628fa0f62",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw",
+          "mode": "list",
+          "cachedResultName": "n8n - automation - Champs Pickleball - Master Video Link & Data Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        160,
+        -40
+      ],
+      "id": "a2b44e64-2728-416d-a473-5d5da3fe9de1",
+      "name": "Google Sheets"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        340,
+        -40
+      ],
+      "id": "ab48ead1-f01b-4f54-802a-972fc71f0ed9",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json[\"Share Video Link\"] }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        780,
+        -40
+      ],
+      "id": "ddc0295f-d32f-4812-b0ac-81a40f56c0f8",
+      "name": "Google Drive1"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "champspickleball-vertical-videos",
+        "fileName": "={{ $('Loop Over Items').item.json[\"File Name\"] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [
+        940,
+        -40
+      ],
+      "id": "b1ab7bb0-9ef1-4af0-aeac-4f192a72aaa0",
+      "name": "AWS S3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fde1ed94-6eda-4ec7-b422-922c55a5948a",
+              "leftValue": "={{ $json['Processed'] }}",
+              "rightValue": "Processed",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        580,
+        -20
+      ],
+      "id": "0b1a2b00-476f-499a-b688-c85be9aabeba",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw",
+          "mode": "list",
+          "cachedResultName": "n8n - automation - Champs Pickleball - Master Video Link & Data Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1gjrCanBNC4AXiOclJF7e9lviCEpwNha_kUULn7v7lvw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Processed": "Processed",
+            "File Name": "={{ $('Loop Over Items').item.json['File Name'] }}"
+          },
+          "matchingColumns": [
+            "File Name"
+          ],
+          "schema": [
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tournament Name",
+              "displayName": "Tournament Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Share Video Link",
+              "displayName": "Share Video Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Share Transcription Link",
+              "displayName": "Share Transcription Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "ChatGPT Drafting Prompt",
+              "displayName": "ChatGPT Drafting Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Master Youtube Video Link",
+              "displayName": "Master Youtube Video Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Processed",
+              "displayName": "Processed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1160,
+        -40
+      ],
+      "id": "c109129a-6588-474d-8717-56deab06ff25",
+      "name": "Google Sheets1"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        40,
+        220
+      ],
+      "id": "9faa50ec-2ecc-4b30-ab97-5314efbe9ba9",
+      "name": "Extract from File"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "AWS S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AWS S3": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  }
+}
