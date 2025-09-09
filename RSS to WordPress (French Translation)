@@ -1,0 +1,397 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "eba7d9c9-da0f-4a95-9d58-8fd1158d0849",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        820,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://9to5mac.com/feed",
+        "options": {}
+      },
+      "id": "a68392ee-1579-42c2-b102-592a6a7a0988",
+      "name": "RSS Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "title": "={{ $json.Title }}",
+        "additionalFields": {
+          "content": "=<img src={{ $('Extract Content and Image Url  from Rss Feed's Content').item.json.image }} alt=\"Feature Image\" style=\"max-width:100%;\" />\n{{ $json.PostContent }}\n",
+          "status": "draft",
+          "format": "standard"
+        }
+      },
+      "id": "ead6b254-9cb4-4d0b-8513-3f792e90d537",
+      "name": "Wordpress",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [
+        2740,
+        420
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Fetch RSS Feed from https://9to5mac.com/\n - RSS trigger to fetch latest feed.\n - Extract Title Category Creator Publication Date.\n - Fetch Page From RSS Feed Article's URL.\n",
+        "height": 414,
+        "width": 1057,
+        "color": 3
+      },
+      "id": "769d0727-7236-4e72-9fd5-54cf09587ea4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "content",
+              "cssSelector": "#content > div.container.med.post-content"
+            },
+            {
+              "key": "image",
+              "cssSelector": "#content > div.container.med.post-content > figure > img",
+              "returnValue": "attribute",
+              "attribute": "src"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b6c83849-d181-47fb-8c00-34ca4b4b9454",
+      "name": "Extract Content and Image Url  from Rss Feed's Content",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of \nconst post = $('RSS Read').first().json;\n const postData = {creator:$('RSS Read').first().json.creator,\ntitle:$('RSS Read').first().json.title,\npubDate: $('RSS Read').first().json.pubDate,\ncategories: $('RSS Read').first().json.categories,\nlink: $('RSS Read').first().json.link}\nreturn{\njsom:{\npostData:postData}\n}"
+      },
+      "id": "0df63776-bb01-4a1c-95e5-a954fe0f8848",
+      "name": "Extract Title Category Creator Publication Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.jsom.postData.link }}",
+        "options": {}
+      },
+      "id": "24401878-2524-4fe1-8341-dd8995f6920b",
+      "name": "Fetch Page From RSS Feed Article's URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Please translate following content to french \nTitle: {{ $('Extract Title Category Creator Publication Date').item.json.jsom.postData.title }}\nPostContent:  {{ $json.content }}\nUnder following format\nTitle: Translated title\nPostContent: Translated PostContent\nTags: Generated Tags"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "39b3ae99-e952-4f4f-80b3-182bf33970ea",
+      "name": "Translate to French Title and Content",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [
+        2180,
+        680
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "8nvLf34BdBcZsqXS",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Translate to French Title and Content').first().json.message.content;\n\nconst titleMatch = input.match(/Title:\\s*(.*)/);\nconst postContentMatch = input.match(/PostContent:\\s*([\\s\\S]*?)\\nTags:/);\nconst tagsMatch = input.match(/Tags:\\s*(.*)/);\nreturn{\n\njson: {\n      Title: titleMatch ? titleMatch[1].trim() : \"\",\n      PostContent: postContentMatch ? postContentMatch[1].trim() : \"\",\n      Tags: tagsMatch ? tagsMatch[1].split(',').map(tag => tag.trim()) : []\n    }}"
+      },
+      "id": "2d00291c-ab4a-4040-9f7b-628d4d6b51c8",
+      "name": "Extract Translated Title Content and Tags",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2520,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Extract Content and Image Url  from Rss Feed's Content').item.json.image }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "ac139bab-6419-4a4b-b77c-3c930f4a1d70",
+      "name": "Download Feature Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2960,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.appsystem.fr/wp-json/wp/v2/media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "={{ $binary.data.mimeType }}"
+            },
+            {
+              "name": "Content-Disposition",
+              "value": "=attachment; filename={{ $binary.data.fileName }}.{{ $binary.data.fileExtension }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "2553b31c-8201-4bb1-99c2-f7f189b03043",
+      "name": "Upload Feature Image to media in wordpress",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3180,
+        420
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.appsystem.fr/wp-json/wp/v2/posts/{{ $('Wordpress').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1b6c048d-7294-4195-b708-81d8e28168aa",
+      "name": "Update Post with featured image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3400,
+        420
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "fG22FgSVKJw0UC7R",
+          "name": "Wordpress account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "- Create Post in Wordpress.\n- Download Feature Image.\n- Upload Feature Image to Wordpress.\n- Update post with feature image in Wordpress.",
+        "height": 382,
+        "width": 923,
+        "color": 4
+      },
+      "id": "bdae2911-8474-4038-9c62-a9165f078b98",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2720,
+        260
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Extract Title Category Creator Publication Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wordpress": {
+      "main": [
+        [
+          {
+            "node": "Download Feature Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Content and Image Url  from Rss Feed's Content": {
+      "main": [
+        [
+          {
+            "node": "Translate to French Title and Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Title Category Creator Publication Date": {
+      "main": [
+        [
+          {
+            "node": "Fetch Page From RSS Feed Article's URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Page From RSS Feed Article's URL": {
+      "main": [
+        [
+          {
+            "node": "Extract Content and Image Url  from Rss Feed's Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate to French Title and Content": {
+      "main": [
+        [
+          {
+            "node": "Extract Translated Title Content and Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Translated Title Content and Tags": {
+      "main": [
+        [
+          {
+            "node": "Wordpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Feature Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Feature Image to media in wordpress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Feature Image to media in wordpress": {
+      "main": [
+        [
+          {
+            "node": "Update Post with featured image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  }
+}
