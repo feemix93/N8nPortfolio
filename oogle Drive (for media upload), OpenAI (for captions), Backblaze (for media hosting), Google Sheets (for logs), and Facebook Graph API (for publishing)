@@ -1,0 +1,1335 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "👈\nSet up Google Drive credentials.\n\nThis node will download the posting file in the n8n workflow.\n\nFollow the steps (YouTube video):\nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n",
+        "height": 239,
+        "width": 275,
+        "color": 3
+      },
+      "id": "b56d4729-cc93-41d9-be09-27547d0d8204",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2660,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "👈\nSet up OpenAI Message Model.\n\nSet up credentials.\n\nThis node will create captions for the post.\n\nFollow the steps (YouTube video):\nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n",
+        "height": 239,
+        "width": 275,
+        "color": 5
+      },
+      "id": "f70fd011-9eab-46b4-a861-148ddd90bca1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3700,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "👈 Hardest Step (Facebook Graph API):\n\nSet up Facebook Graph API Node.\n\nSet up credentials.\n\nConnect query parameters with Google Sheets parameters.\n\nThis node will access your post file from Google Sheets with captions.\n\nFollow the steps (YouTube video):\nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n",
+        "height": 379,
+        "width": 275,
+        "color": 3
+      },
+      "id": "5e855a8f-3a45-43bc-a8e6-9c590fb77c3d",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4200,
+        140
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "👈 \n1. Set-up Facebook Graph API) Node\n2. Set-Up Credentials\n\n3.This Node will Directly post on your instagram.\n\n\nFollow the Steps (Youtube Video)\nhttps://youtu.be/L3NUp2XP_h0?si=KAtjHYE2-qedlM-n",
+        "height": 299,
+        "width": 275,
+        "color": 4
+      },
+      "id": "b3114251-0799-44a2-a838-0231103d8f87",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4560,
+        160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1edfdc5b-b63c-45e3-ab86-73f39b59b359",
+              "name": "name",
+              "value": "={{ $('Get Download Auth').item.json.fileNamePrefix }}",
+              "type": "string"
+            },
+            {
+              "id": "fa61aa4a-613c-4685-8077-a911120fc02b",
+              "name": "caption",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "c8ac16de-4082-46c0-87a2-a0cad7dd73c5",
+              "name": "url",
+              "value": "={{ $('Loop Over Items').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "4fed68de-13b8-4ab3-a4c0-b44429f3057f",
+              "name": "date",
+              "value": "={{ $('Loop Over Items').item.json.datetime }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4040,
+        0
+      ],
+      "id": "62a4ec85-1e73-4357-b5b7-ffc6a6b61e1e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "### Automate instagram posts with Google Drive, AI Captions & Facebook Graph API Agent (Easy to Set-Up)\n(Easy to set-up)",
+        "height": 100,
+        "width": 492,
+        "color": 4
+      },
+      "id": "d10239e4-057e-49cc-b870-ee1d54680677",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        -100
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "hostUrl": "graph-video.facebook.com",
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v22.0",
+        "node": "17841476801546141",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "340b0e42-8fd2-4c6e-9988-504cb64b30ea",
+      "name": "Finally Post to Instagram1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        4600,
+        0
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "vIZqpmGpQenPqGJo",
+          "name": "Facebook Graph Darpan"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1R8XUX0PyOBHoiqgjF1uSeps2xxbrwO6O",
+          "mode": "list",
+          "cachedResultName": "n8n reels automation on instagram",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1R8XUX0PyOBHoiqgjF1uSeps2xxbrwO6O"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "ce1041b2-cabc-4bd2-9574-d0a4e8d0cb2e",
+      "name": "Post File Upload in Google Drive Folder  Trigger1",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        1520,
+        -440
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Items').item.json.url }}",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "id": "ea742013-36c3-4963-9681-9f6cd3519faa",
+      "name": "Post File Download in N8N (Google Drive Node)1",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2700,
+        0
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $('Loop Over Items').item.json.instruction }}\nusing following hashtags{{ $('Loop Over Items').item.json.hashtags }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "a0a85232-81e4-4ca6-b8f8-128cb9ab9f29",
+      "name": "AI Caption generated by OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        3680,
+        0
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1zmIBkwh_CbnUR6vxOqNToHxmejpRrXBDLl1gvk98hzU",
+          "mode": "list",
+          "cachedResultName": "n8n insta POSTS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zmIBkwh_CbnUR6vxOqNToHxmejpRrXBDLl1gvk98hzU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zmIBkwh_CbnUR6vxOqNToHxmejpRrXBDLl1gvk98hzU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $('Post File Upload in Google Drive Folder  Trigger1').item.json.name }}",
+            "caption": "={{ $json.caption }}",
+            "url": "={{ $('Post File Upload in Google Drive Folder  Trigger1').item.json.webContentLink }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "caption",
+              "displayName": "caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "94d86c7d-5e78-431d-b8ea-9a659c4bad5e",
+      "name": "Post File Save in Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2920,
+        -340
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OhFI0Xcw8c64fyvD",
+          "name": "Google Sheets Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v22.0",
+        "node": "17841476801546141",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "caption",
+                "value": "={{ $json.caption }}"
+              },
+              {
+                "name": "image_url",
+                "value": "={{ $('Build Signed URL').item.json.signedFileUrl }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "5983c50b-2d3f-42da-82e1-37fc5df0aa24",
+      "name": "Connect Facebook API for Publishing Instagram Post using N8N3",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        4420,
+        0
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "vIZqpmGpQenPqGJo",
+          "name": "Facebook Graph Darpan"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "signedFileUrl",
+              "value": "={{ $('Authorize Backblaze').item.json.downloadUrl }}/file/InstagramMediaForN8n/{{ $json.fileNamePrefix }}?Authorization={{$json[\"authorizationToken\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Build Signed URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        0
+      ],
+      "id": "782773c6-e406-46a6-8a22-a3bcadb61304"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Authorize Backblaze').item.json.apiUrl }}/b2api/v2/b2_get_download_authorization",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Authorization",
+              "value": "={{ $('Auth_Data').item.json.authorizationToken }}"
+            }
+          ]
+        },
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "bucketId",
+              "value": "={{ $('Auth_Data').item.json.bucketId }}"
+            },
+            {
+              "name": "fileNamePrefix",
+              "value": "={{ $json.fileName }}"
+            },
+            {
+              "name": "validDurationInSeconds",
+              "value": "3600"
+            }
+          ]
+        }
+      },
+      "name": "Get Download Auth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        0
+      ],
+      "id": "2f3569af-da02-4fa6-9bcb-d31686c39523"
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"apiUrl\"]}}/b2api/v2/b2_get_upload_url",
+        "options": {},
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.authorizationToken }}"
+            }
+          ]
+        },
+        "queryParametersUi": {
+          "parameter": [
+            {
+              "name": "bucketId",
+              "value": "={{ $json.bucketId }}"
+            }
+          ]
+        }
+      },
+      "name": "Get Upload URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        2360,
+        0
+      ],
+      "id": "92660c1e-8294-4687-9e69-f02f618632f9"
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "url": "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
+        "options": {}
+      },
+      "name": "Authorize Backblaze",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        2040,
+        0
+      ],
+      "id": "5c8eb2b6-d9da-4474-b77a-03207c860ed2",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "I5J6NWrDFnrrAsYh",
+          "name": "Unnamed credential 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Get Upload URL').item.json.uploadUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=Authorization",
+              "value": "={{ $json.authorizationToken }}"
+            },
+            {
+              "name": "=X-Bz-File-Name ",
+              "value": "={{ $binary.data.fileName }}"
+            },
+            {
+              "name": "=Content-Type",
+              "value": "={{ $binary.data.mimeType }}"
+            },
+            {
+              "name": "X-Bz-Content-Sha1 ",
+              "value": "do_not_verify"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2900,
+        0
+      ],
+      "id": "f2105cd5-3810-42a4-958f-09f9370aa301",
+      "name": "Upload File"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "42338b19-2b5b-4e0e-bf92-eda3958526c0",
+              "leftValue": "={{ $json.uploadUrl }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2520,
+        0
+      ],
+      "id": "468e8d43-2f7c-4e56-987b-8e3bb77fc644",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2eedcaa7-142e-4e2b-a4a3-23ac5f623cb6",
+              "name": "apiUrl",
+              "value": "={{ $json.apiUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "e4d66f18-73e0-4ecb-8cf6-045c111d94e0",
+              "name": "authorizationToken",
+              "value": "={{ $json.authorizationToken }}",
+              "type": "string"
+            },
+            {
+              "id": "f6a6131d-1e26-4e8c-bda1-057c51544fb3",
+              "name": "bucketId",
+              "value": "10ec95ae440728a99294081b",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2220,
+        0
+      ],
+      "id": "14879d0f-a0d5-4ab7-932f-59a3d16e1220",
+      "name": "Auth_Data"
+    },
+    {
+      "parameters": {
+        "content": "👈\nSet up Google Drive credentials.\n\nWhen a new photo/video or carousel is uploaded to the selected folder in Google Drive for posting on Instagram, this trigger will be activated.\n\nFollow the steps (YouTube video):\nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n",
+        "height": 239,
+        "width": 275,
+        "color": 4
+      },
+      "id": "5ce1bd23-2178-4f75-84d9-cacea602cf46",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1580,
+        180
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Automate instagram posts with Google Drive, AI Captions & Facebook Graph API Agent (Easy to Set-Up)\n(Easy to set-up)",
+        "height": 100,
+        "width": 492,
+        "color": 4
+      },
+      "id": "323f61d7-8bbe-4d9d-8136-82a6a167ad5b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        1280
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "👈\nSet up Google Sheets Node.\n\nSet up credentials.\n\nCreate a new sheet in Google Sheets (e.g., Instagram posts).\n\nCreate 3 columns: Name, Caption, and Image/Reel Link. Connect the Google sheet with this node. & connect the columns with the Google Drive Node (Name Column & Url Column with 2 parameters of Google Drive Node) and captions column with one OpenAI parameter.\n\nFollow the steps (YouTube video):\nhttps://youtu.be/L3NUp2XP_h0?si=KAjHYEZ-qedIM-n",
+        "height": 399,
+        "width": 275
+      },
+      "id": "f9e68621-67d8-4c88-b1aa-baf08e5766b8",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        1660
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "hostUrl": "graph-video.facebook.com",
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v22.0",
+        "node": "17841465053058137",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "f3d68d3e-ae9f-486a-ac03-f45aed45a5f7",
+      "name": "Finally Post to Instagram",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1240,
+        1520
+      ],
+      "typeVersion": 1,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1VfkhYImlmEXw70IrJvvZKO6mM164zMD6",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1VfkhYImlmEXw70IrJvvZKO6mM164zMD6",
+          "cachedResultName": "n8n reels automation on instagram"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "5faebd71-a879-4cf9-a4aa-022fa3ca060f",
+      "name": "Post File Upload in Google Drive Folder  Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        0,
+        1480
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {}
+      },
+      "id": "407ca447-727a-47a8-a3fd-1bcb3d1b66d7",
+      "name": "Post File Download in N8N (Google Drive Node)",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        220,
+        1480
+      ],
+      "typeVersion": 3,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Generate an engaging Instagram caption for a {{ $('Post File Upload in Google Drive Folder  Trigger').item.json.name }}  about [Description]. Include:\t\n2-3 sentences with emojis\n\n3-5 relevant hashtags\n\nA call-to-action\n\nKeep it under 150 characters as you are skilled at writing detailed captions based on a file name. write a clear, engaging caption that helps viewers understand and appreciate the post withoutj using too many whimsical words or using too many adjectives. make it relatable and suitable for an instagram audience, encouraging people to connect with the post and respond in the comments. "
+            },
+            {}
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "e04fe230-d94b-43d4-9505-3466f935c807",
+      "name": "AI Caption generated by OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        440,
+        1480
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "110nKRiQwCHLd6y7NpDJQCH3dSd3iRPPewRpoxISVR2A",
+          "mode": "list",
+          "cachedResultName": "N8N Runivi ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/110nKRiQwCHLd6y7NpDJQCH3dSd3iRPPewRpoxISVR2A/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/110nKRiQwCHLd6y7NpDJQCH3dSd3iRPPewRpoxISVR2A/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "Filename",
+              "displayName": "Filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Caption",
+              "displayName": "Caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "object",
+              "displayName": "object",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created",
+              "displayName": "created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "choices",
+              "displayName": "choices",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "usage",
+              "displayName": "usage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "service_tier",
+              "displayName": "service_tier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "system_fingerprint",
+              "displayName": "system_fingerprint",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f3150304-820a-49e4-a426-a83d982dc978",
+      "name": "Post File Save in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        820,
+        1480
+      ],
+      "typeVersion": 4.5,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "s757dx0P1DI7JThP",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v22.0",
+        "node": "715642564966079",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "video_url",
+                "value": "={{ $json['Reel Urls '] }}"
+              },
+              {
+                "name": "media-type",
+                "value": "REELS"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $json.Captions }}"
+              },
+              {
+                "name": "image_url",
+                "value": "={{ $json['Reel Thumbnail'] }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "918b4593-44e8-4bd0-b297-d6a8ca5f9fbd",
+      "name": "Connect Facebook API for Publishing Instagram Post using N8N",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        1040,
+        1500
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "6n4DT4GAcgwMCg9C",
+          "name": "Facebook Graph account 8"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1620,
+        -480
+      ],
+      "id": "a0330a43-63ef-4721-8d5d-feba509fb136",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Xp9NfQBdqhYgC3r1",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = [\n  {\n    \"url\": \"https://drive.google.com/file/d/1LxXIiWJCdZ-65UIIbGPxjizCoDgDoPwP/view?usp=drive_link\",\n    \"instruction\": \"Create engaging that helps viewers understand and appreciate the post withoutj using too many whimsical words or using too many adjectives. make it relatable and suitable for an instagram audience, encouraging people to connect with the post and respond in the comments. \",\n    \"hashtags\": \"#dog #snow #fur\",\n    \"datetime\": \"2025-09-08 18:28:50\"\n  },\n  {\n    \"url\": \"https://drive.google.com/file/d/128I7ZYSHZ3eKJC8m2oIru9DxQOUuECF7/view?usp=drive_link\",\n    \"instruction\": \"Create touchy caption about famous movie about chaining tatum engaging caption that helps viewers understand and appreciate the post withoutj using too many whimsical words or using too many adjectives. make it relatable and suitable for an instagram audience, encouraging people to connect with the post and respond in the comments. \",\n    \"hashtags\": \"#chainingtatum #whitehoushasfallen\",\n    \"datetime\": \"2025-09-08 18:29:50\"\n  }\n]\n// return{\n//   json:{\n//   data:data\n//   }\n// }\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        20
+      ],
+      "id": "7b5eecb7-1d5b-4739-95b4-0be32439f494",
+      "name": "Code"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        20
+      ],
+      "id": "70e1c619-2f40-41d6-8449-c181cbdfb4b8",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Generate an engaging Instagram caption for a {{ $('Post File Upload in Google Drive Folder  Trigger1').item.json.name }} . Include:\t\n2-3 sentences with emojis\n\n3-5 relevant hashtags\n\nA call-to-action\n\nKeep it under 150 characters as you are skilled at writing detailed captions based on a file name. write a clear, engaging caption that helps viewers understand and appreciate the post withoutj using too many whimsical words or using too many adjectives. make it relatable and suitable for an instagram audience, encouraging people to connect with the post and respond in the comments. "
+            },
+            {}
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "id": "e6d43093-145c-48d7-bec6-a635fc8a66da",
+      "name": "AI Caption generated by OpenAI2",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        3440,
+        620
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $json.date }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4200,
+        0
+      ],
+      "id": "db23aa02-8964-4d5d-a5dd-9b1c9acfed0a",
+      "name": "Wait",
+      "webhookId": "ecc5ec5f-cad5-4b94-89d6-a9bd6f0a0120"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5f925f6-6213-4971-8b92-611ff3784b54",
+              "name": "d",
+              "value": "={{$now.format(\"YYYY-MM-DD HH:mm:ss\")}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4760,
+        -480
+      ],
+      "id": "0fc5a253-dd90-4f2e-bc06-d74045e3c20b",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1820,
+        20
+      ],
+      "id": "367ffdb8-8195-4c50-9c21-0371e0baed25",
+      "name": "Loop Over Items"
+    }
+  ],
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finally Post to Instagram1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Upload in Google Drive Folder  Trigger1": {
+      "main": [
+        []
+      ]
+    },
+    "Post File Download in N8N (Google Drive Node)1": {
+      "main": [
+        [
+          {
+            "node": "Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Caption generated by OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Save in Google Sheets1": {
+      "main": [
+        []
+      ]
+    },
+    "Connect Facebook API for Publishing Instagram Post using N8N3": {
+      "main": [
+        [
+          {
+            "node": "Finally Post to Instagram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Signed URL": {
+      "main": [
+        [
+          {
+            "node": "AI Caption generated by OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Download Auth": {
+      "main": [
+        [
+          {
+            "node": "Build Signed URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Upload URL": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authorize Backblaze": {
+      "main": [
+        [
+          {
+            "node": "Auth_Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload File": {
+      "main": [
+        [
+          {
+            "node": "Get Download Auth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Post File Download in N8N (Google Drive Node)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth_Data": {
+      "main": [
+        [
+          {
+            "node": "Get Upload URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Upload in Google Drive Folder  Trigger": {
+      "main": [
+        [
+          {
+            "node": "Post File Download in N8N (Google Drive Node)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Download in N8N (Google Drive Node)": {
+      "main": [
+        [
+          {
+            "node": "AI Caption generated by OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Caption generated by OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Post File Save in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post File Save in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Connect Facebook API for Publishing Instagram Post using N8N",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Connect Facebook API for Publishing Instagram Post using N8N": {
+      "main": [
+        [
+          {
+            "node": "Finally Post to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Connect Facebook API for Publishing Instagram Post using N8N3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Authorize Backblaze",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "3478",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49b797bdec8802724441f6b04a271b8ba4b310cdaeaa32525c6aed811a29f986"
+  }
+}
