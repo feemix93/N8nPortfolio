@@ -1,0 +1,1450 @@
+{
+  "name": "apify2",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "74b3d20f-46e0-44a9-850b-c43f07c8bd86",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3803a785-d9f7-44d2-8c11-dc87f7ac9a9f",
+              "name": "email_status",
+              "value": "={{ $json.email_status }}",
+              "type": "string"
+            },
+            {
+              "id": "0415a913-1f83-4f6f-982b-a977d721ee62",
+              "name": "email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "e46f1153-775c-40e1-8863-88ca13cbe6ba",
+              "name": "linkedin_url",
+              "value": "={{ $json.linkedin_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "744822ed-05ab-4027-9463-e049fcdc3b63",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        660,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 1500
+      },
+      "id": "96b57c80-17b6-4379-8af4-61821096f35d",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 50,
+        "options": {}
+      },
+      "id": "15145f1d-cc4a-45db-8096-503a8d957931",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        400,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {
+          "keepSource": "json"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        520
+      ],
+      "id": "25924dc3-29b8-48de-918e-cc841741e99c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        120,
+        540
+      ],
+      "id": "073585e6-75ec-40af-95f2-5da40a72cb4d",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/code_crafter~apollo-io-scraper/runs?token=apify_api_IctbV8k6fSslkr6deksEHUaC",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"url\": \"https://app.apollo.io/#/people?finderViewId=5b8050d050a3893c382e9360&personLocations[]=Germany&page=1&sortByField=recommendations_score&organizationNumEmployeesRanges[]=5000%2C5200&organizationIndustryTagIds[]=5567e0bf7369641d115f0200&organizationIndustryTagIds[]=5567e3f3736964395d7a0000\",\n    \"totalRecords\": 5,\n    \"getWorkEmails\": true,\n    \"getPersonalEmails\": true\n}",
+        "options": {}
+      },
+      "id": "5ac35180-8ca0-4517-b497-5548029595de",
+      "name": "Get list of actors",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -440,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.apify.com/v2/datasets/p5RrAQqImg2FIn21I/items?token=a\n",
+        "options": {}
+      },
+      "id": "7da2878c-d101-4bac-9bcc-0507ad1b0c72",
+      "name": "Get dataset from actor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        180
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.leadmagic.io/profile-search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "e1d635c74e60132fc9ed75745482259c"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "profile_url",
+              "value": "={{ $json.linkedin_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4d77cb62-b113-4ac2-b144-ced3a3fb4fd0",
+      "name": "Enrich linkedin data using lead magic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        260
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Hi {{ $('Loop Over Items').item.json.first_name }}\n\n((Icebreaker))\n\nI know how competitive the  {{ $('Loop Over Items').item.json.organization.industry }} space is, and businesses that embrace AI are gaining a major edge over their competition. That’s why I’m offering you a custom-built Sales & Marketing GPT – free for 7 days (worth £3,588 per year).\n\n🚀 Here’s what it can do for  {{ $('Loop Over Items').item.json.organization.name }}:\n✅ Instantly generate an actionable, up-to-date Marketing Strategy\n✅ Provide a detailed Market & Competitor Analysis\n✅ Create a high-converting Sales & Distribution Strategy\n✅ Automate lead generation, engagement, and conversions\n\nCompanies using this AI have already increased revenue, reduced wasted ad spend, and booked more sales meetings – all with less manual effort.\n\n👉 Access your AI GPT here now: {{auth0_link}}\n\nThis is a risk-free way to test AI-driven automation in your business, and I’d love to hear how it helps you.\n\nLet me know if you have any questions—excited to hear your thoughts!\n\nBest,\nCheryl\nfor above mail template Please generate icebreaker ,ps ,subject,elevatorPitch and call to action using following data\n name: {{ $('Loop Over Items').item.json.first_name }},\njobtitle:  {{ $('Loop Over Items').item.json.headline}},\nOrgangizationName:  {{ $('Loop Over Items').item.json.organization.name }},\nIndustry:  {{ $('Loop Over Items').item.json.organization.industry }},\nCountry:  {{ $('Loop Over Items').item.json.country }},\nstate:  {{ $('Loop Over Items').item.json.state }},\nin below format\nIcebreaker: Generated icebreaker,\nPS: Generated PS\nexlude name from icebreaker,\nSubject: Generated email subject started with Hey name provided,\nElevatorPitch: Generated ElevatorPitch.\nCallToAction: Generated Call to action text\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e407b2f2-e4c8-49c5-ae9b-cf3434c2d44b",
+      "name": "OpenAi",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [
+        1380,
+        560
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "6ifHZxHto88hedKM",
+          "name": "apfy chery"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const categoryData = $input.first().json.message.content;\n\n// Extract Icebreaker\nconst icebreakerMatch = categoryData.match(/Icebreaker:\\s*(.*?)(?=\\s*PS:)/s);\nconst icebreaker = icebreakerMatch ? icebreakerMatch[1].trim() : \"\";\n// Extract PS\nconst psMatch = categoryData.match(/PS:\\s*(.*?)(?=\\s*Subject:)/s);\nconst ps = psMatch ? psMatch[1].trim() : \"\";\n\n// Extract Subject\nconst subjectMatch = categoryData.match(/Subject:\\s*(.*?)(?=\\s*ElevatorPitch:)/s);\nconst subject = subjectMatch ? subjectMatch[1].trim() : \"\";\n\n// Extract Elevator Pitch\nconst elevatorPitchMatch = categoryData.match(/ElevatorPitch:\\s*(.*?)(?=\\s*CallToAction:)/s);\nconst elevatorPitch = elevatorPitchMatch ? elevatorPitchMatch[1].trim() : \"\";\n\n// Extract Call to Action\nconst callToActionMatch = categoryData.match(/CallToAction:\\s*(.*)/s);\nconst callToAction = callToActionMatch ? callToActionMatch[1].trim() : \"\";\n\nreturn {\n  json: {\n    icebreaker,\n    ps,\n    subject,\n    elevatorPitch,\n    callToAction\n  }\n};\n"
+      },
+      "id": "95bdf50d-fa89-4122-9eb8-a8f1efd1bf8c",
+      "name": "Extract Icebreaker etc",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1800,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "11-t3pq4nsgw6alu_tXhHLDTNwx97WgnJM7FTTrMCvgA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "profileUrl": "={{ $json.profileUrl }}",
+            "firstName": "={{ $json.firstName }}",
+            "lastName": "={{ $json.lastName }}",
+            "fullName": "={{ $json.fullName }}",
+            "publicIdentifier": "={{ $json.publicidentifier }}",
+            "headline": "={{ $json.headline }}",
+            "userSkills": "={{ $json.userSkills }}",
+            "company_name": "={{ $json.company_name }}",
+            "company_size": "={{ $json.company_size }}",
+            "company_industry": "={{ $json.company_industry }}",
+            "company_linkedin_url": "={{ $json.company_linkedin_url }}",
+            "followers": "={{ $json.followers }}",
+            "urn": "={{ $json.urn }}",
+            "country": "={{ $json.country }}",
+            "location": "={{ $json.location }}",
+            "profilePic": "={{ $json.profilePic }}",
+            "about": "={{ $json.about }}",
+            "subject": "={{ $json.subject }}",
+            "icebreaker": "={{ $json.icebreaker }}",
+            "elevatorPitch": "={{ $json.elevatorPitch }}",
+            "callToAction": "={{ $json.callToAction }}",
+            "ps": "={{ $json.ps }}",
+            "emailAddress": "={{ $('Edit Fields').first().json.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "profileUrl",
+              "displayName": "profileUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "firstName",
+              "displayName": "firstName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastName",
+              "displayName": "lastName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "publicIdentifier",
+              "displayName": "publicIdentifier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "headline",
+              "displayName": "headline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "userSkills",
+              "displayName": "userSkills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_size",
+              "displayName": "company_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_industry",
+              "displayName": "company_industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_linkedin_url",
+              "displayName": "company_linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connections",
+              "displayName": "connections",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "followers",
+              "displayName": "followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urn",
+              "displayName": "urn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "profilePic",
+              "displayName": "profilePic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "about",
+              "displayName": "about",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "icebreaker",
+              "displayName": "icebreaker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "elevatorPitch",
+              "displayName": "elevatorPitch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callToAction",
+              "displayName": "callToAction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ps",
+              "displayName": "ps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emailAddress",
+              "displayName": "emailAddress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6ade6103-e614-467d-a827-de73d4e43824",
+      "name": "Store lead's data Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        2240,
+        580
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "K9zxvqWI5eKzjkHM",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d686df55-5c4e-42ec-a531-188c81bacf8f",
+              "name": "profileUrl",
+              "value": "={{ $('Loop Over Items').item.json.linkedin_url }}",
+              "type": "string"
+            },
+            {
+              "id": "a51d9266-6772-4279-8993-5e73b916c4ef",
+              "name": "firstName",
+              "value": "={{ $('Loop Over Items').item.json.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "f2d6376e-87d1-45f6-9be3-d36cba4a4eda",
+              "name": "lastName",
+              "value": "={{ $('Loop Over Items').item.json.last_name }}",
+              "type": "string"
+            },
+            {
+              "id": "cc53ff3e-6a4e-4d6c-a76f-08b9439312bb",
+              "name": "fullName",
+              "value": "={{ $('Loop Over Items').item.json.name}}",
+              "type": "string"
+            },
+            {
+              "id": "8b1b9510-2260-416b-b440-ae24ae56880a",
+              "name": "publicidentifier",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "810f1e8f-f9f9-42ef-88cd-9bb6775ad11e",
+              "name": "headline",
+              "value": "={{ $('Loop Over Items').item.json.headline }}",
+              "type": "string"
+            },
+            {
+              "id": "5b02bf0a-96d4-4abe-9713-d5b9dec4b80b",
+              "name": "userSkills",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "054ebe67-2ac0-476e-81d5-d8c6ccb25caf",
+              "name": "company_name",
+              "value": "={{ $('Loop Over Items').item.json.organization.name}}",
+              "type": "string"
+            },
+            {
+              "id": "ab25d818-1c8f-4eca-810c-a2baa9f3837b",
+              "name": "company_size",
+              "value": "={{ $('Loop Over Items').item.json.organization.estimated_num_employees }}",
+              "type": "string"
+            },
+            {
+              "id": "ef9f7570-8da2-4c42-bf87-78bedabd3b01",
+              "name": "company_industry",
+              "value": "={{ $('Loop Over Items').item.json.organization.industry }}",
+              "type": "string"
+            },
+            {
+              "id": "3bc2a00e-2b07-419a-8840-3b8784226c7e",
+              "name": "company_linkedin_url",
+              "value": "={{ $('Loop Over Items').item.json.organization.linkedin_url}}",
+              "type": "string"
+            },
+            {
+              "id": "16c6da6d-f5ef-4505-85db-e15283b2cc24",
+              "name": "company_website",
+              "value": "={{ $('Loop Over Items').item.json.organization.website_url }}",
+              "type": "string"
+            },
+            {
+              "id": "dd280cc1-9e58-4d47-a817-a41fb65bb153",
+              "name": "followers",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "ed87f1ed-6bd2-4589-89d6-f2d70778825c",
+              "name": "urn",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "2b8556dd-4f4f-4c07-b0e4-947b6c78587f",
+              "name": "country",
+              "value": "={{ $('Loop Over Items').item.json.country }}",
+              "type": "string"
+            },
+            {
+              "id": "26ddcc24-75c4-4d26-8961-88cdd33350b7",
+              "name": "location",
+              "value": "={{ $('Loop Over Items').item.json.organization.state}}",
+              "type": "string"
+            },
+            {
+              "id": "6b2440c4-7ce0-467c-97cf-59618a549750",
+              "name": "profilePic",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "9fa786b3-015f-49e9-ba9c-414e1eead425",
+              "name": "about",
+              "value": "=",
+              "type": "string"
+            },
+            {
+              "id": "8ec2a612-f09f-4d59-a5bb-e97d71218264",
+              "name": "icebreaker",
+              "value": "={{ $json.icebreaker }}",
+              "type": "string"
+            },
+            {
+              "id": "9f0c7f34-5467-44bc-ad22-4363f1ecb357",
+              "name": "ps",
+              "value": "={{ $json.ps }}",
+              "type": "string"
+            },
+            {
+              "id": "5ab23341-430a-4275-a99b-54d3129fd16f",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "e1a2d884-f21f-4ae0-a449-dbb498a340f8",
+              "name": "elevatorPitch",
+              "value": "={{ $json.elevatorPitch }}",
+              "type": "string"
+            },
+            {
+              "id": "d8c62bf3-9a64-445d-9d3d-c6f2471ee257",
+              "name": "callToAction",
+              "value": "={{ $json.callToAction }}",
+              "type": "string"
+            },
+            {
+              "id": "96a832a6-e370-472c-bbae-77c443230763",
+              "name": "email",
+              "value": "={{ $('Edit Fields').item.json.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "91b3d446-ed45-4403-8ef2-2aa94ca73a80",
+      "name": "Lead's data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        2020,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "d2942c47-dda7-4bd4-88ae-75bcd6c7e20d",
+              "leftValue": "={{ $json.email_status }}",
+              "rightValue": "verified",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "67fbc9aa-36ed-4597-b9cc-2c3d43a1490f",
+      "name": "Check email status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        840,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1uln7snTZblRk_JV3DH2xp_ZRQd28_vEI/view?usp=drive_link",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -360,
+        500
+      ],
+      "id": "6fc1f982-9a09-4198-bae6-e135d0badaa2",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1tuM9nAnyLmymh8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b25e210-5129-40ae-b308-7bb65a158f19",
+              "leftValue": "={{ $json.first().error.status }}",
+              "rightValue": 403,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1220,
+        340
+      ],
+      "id": "ce5b730d-87bd-4c68-a166-2a16e2df63e6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Hi {{$json.firstName}},\n\n((Icebreaker))\n\nI know how competitive the {{$json.company_industry}} space is, and businesses that embrace AI are gaining a major edge over their competition. That’s why I’m offering you a custom-built Sales & Marketing GPT – free for 7 days (worth £3,588 per year).\n\n🚀 Here’s what it can do for {{$json.company_name}}:\n✅ Instantly generate an actionable, up-to-date Marketing Strategy\n✅ Provide a detailed Market & Competitor Analysis\n✅ Create a high-converting Sales & Distribution Strategy\n✅ Automate lead generation, engagement, and conversions\n\nCompanies using this AI have already increased revenue, reduced wasted ad spend, and booked more sales meetings – all with less manual effort.\n\n👉 Access your AI GPT here now: {{auth0_link}}\n\nThis is a risk-free way to test AI-driven automation in your business, and I’d love to hear how it helps you.\n\nLet me know if you have any questions—excited to hear your thoughts!\n\nBest,\nCheryl\nfor above mail template Please generate icebreaker ,ps ,subject,elevatorPitch and call to action using following data\n name:{{ $json.firstName }},\n userSkills: {{ $json.userSkills }},\njobtitle: {{ $json.headline }},\nOrgangizationName: {{ $json.company_name }},\nIndustry: {{ $json.company_industry }},\nCountry: {{ $json.country }},\nstate: {{ $json.location }},\nin below format\nIcebreaker: Generated icebreaker,\nPS: Generated PS\nexlude name from icebreaker,\nSubject: Generated email subject started with Hey name provided,\nElevatorPitch: Generated ElevatorPitch.\nCallToAction: Generated Call to action text\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "799d3cb1-261e-4ea5-91f4-5fbb4c46f015",
+      "name": "OpenAi1 leadmagic",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.3,
+      "position": [
+        1440,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "6ifHZxHto88hedKM",
+          "name": "apfy chery"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d686df55-5c4e-42ec-a531-188c81bacf8f",
+              "name": "profileUrl",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.profileUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "a51d9266-6772-4279-8993-5e73b916c4ef",
+              "name": "firstName",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.firstName }}",
+              "type": "string"
+            },
+            {
+              "id": "f2d6376e-87d1-45f6-9be3-d36cba4a4eda",
+              "name": "lastName",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.lastName }}",
+              "type": "string"
+            },
+            {
+              "id": "cc53ff3e-6a4e-4d6c-a76f-08b9439312bb",
+              "name": "fullName",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.fullName }}",
+              "type": "string"
+            },
+            {
+              "id": "8b1b9510-2260-416b-b440-ae24ae56880a",
+              "name": "publicidentifier",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.publicIdentifier }}",
+              "type": "string"
+            },
+            {
+              "id": "810f1e8f-f9f9-42ef-88cd-9bb6775ad11e",
+              "name": "headline",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.headline }}",
+              "type": "string"
+            },
+            {
+              "id": "5b02bf0a-96d4-4abe-9713-d5b9dec4b80b",
+              "name": "userSkills",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.userSkills }}",
+              "type": "string"
+            },
+            {
+              "id": "054ebe67-2ac0-476e-81d5-d8c6ccb25caf",
+              "name": "company_name",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.company_name }}",
+              "type": "string"
+            },
+            {
+              "id": "ab25d818-1c8f-4eca-810c-a2baa9f3837b",
+              "name": "company_size",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.company_size }}",
+              "type": "string"
+            },
+            {
+              "id": "ef9f7570-8da2-4c42-bf87-78bedabd3b01",
+              "name": "company_industry",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.company_industry }}",
+              "type": "string"
+            },
+            {
+              "id": "3bc2a00e-2b07-419a-8840-3b8784226c7e",
+              "name": "company_linkedin_url",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.company_linkedin_url }}",
+              "type": "string"
+            },
+            {
+              "id": "16c6da6d-f5ef-4505-85db-e15283b2cc24",
+              "name": "company_website",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.company_website }}",
+              "type": "string"
+            },
+            {
+              "id": "dd280cc1-9e58-4d47-a817-a41fb65bb153",
+              "name": "followers",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.followers }}",
+              "type": "string"
+            },
+            {
+              "id": "ed87f1ed-6bd2-4589-89d6-f2d70778825c",
+              "name": "urn",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.urn }}",
+              "type": "string"
+            },
+            {
+              "id": "2b8556dd-4f4f-4c07-b0e4-947b6c78587f",
+              "name": "country",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.country }}",
+              "type": "string"
+            },
+            {
+              "id": "26ddcc24-75c4-4d26-8961-88cdd33350b7",
+              "name": "location",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.location }}",
+              "type": "string"
+            },
+            {
+              "id": "6b2440c4-7ce0-467c-97cf-59618a549750",
+              "name": "profilePic",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.profilePic }}",
+              "type": "string"
+            },
+            {
+              "id": "9fa786b3-015f-49e9-ba9c-414e1eead425",
+              "name": "about",
+              "value": "={{ $('Enrich linkedin data using lead magic').first().json.about }}",
+              "type": "string"
+            },
+            {
+              "id": "8ec2a612-f09f-4d59-a5bb-e97d71218264",
+              "name": "icebreaker",
+              "value": "={{ $json.icebreaker }}",
+              "type": "string"
+            },
+            {
+              "id": "9f0c7f34-5467-44bc-ad22-4363f1ecb357",
+              "name": "ps",
+              "value": "={{ $json.ps }}",
+              "type": "string"
+            },
+            {
+              "id": "5ab23341-430a-4275-a99b-54d3129fd16f",
+              "name": "subject",
+              "value": "={{ $json.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "e1a2d884-f21f-4ae0-a449-dbb498a340f8",
+              "name": "elevatorPitch",
+              "value": "={{ $json.elevatorPitch }}",
+              "type": "string"
+            },
+            {
+              "id": "d8c62bf3-9a64-445d-9d3d-c6f2471ee257",
+              "name": "callToAction",
+              "value": "={{ $json.callToAction }}",
+              "type": "string"
+            },
+            {
+              "id": "96a832a6-e370-472c-bbae-77c443230763",
+              "name": "email",
+              "value": "={{ $('Edit Fields').item.json.email }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ef92226e-6c2a-4ab6-aa62-6fb9b94b64b7",
+      "name": "Lead magic Lead's data1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        2020,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "11-t3pq4nsgw6alu_tXhHLDTNwx97WgnJM7FTTrMCvgA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "profileUrl": "={{ $json.profileUrl }}",
+            "firstName": "={{ $json.firstName }}",
+            "lastName": "={{ $json.lastName }}",
+            "fullName": "={{ $json.fullName }}",
+            "publicIdentifier": "={{ $json.publicidentifier }}",
+            "headline": "={{ $json.headline }}",
+            "userSkills": "={{ $json.userSkills }}",
+            "company_name": "={{ $json.company_name }}",
+            "company_size": "={{ $json.company_size }}",
+            "company_industry": "={{ $json.company_industry }}",
+            "company_linkedin_url": "={{ $json.company_linkedin_url }}",
+            "connections": "={{ $('Enrich linkedin data using lead magic').item.json.connections }}",
+            "followers": "={{ $json.followers }}",
+            "urn": "={{ $json.urn }}",
+            "country": "={{ $json.country }}",
+            "location": "={{ $json.location }}",
+            "profilePic": "={{ $json.profilePic }}",
+            "about": "={{ $json.about }}",
+            "subject": "={{ $json.subject }}",
+            "icebreaker": "={{ $json.icebreaker }}",
+            "elevatorPitch": "={{ $json.elevatorePitch }}",
+            "callToAction": "={{ $json.callToAction }}",
+            "ps": "={{ $json.ps }}",
+            "emailAddress": "={{ $('Edit Fields').first().json.email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "profileUrl",
+              "displayName": "profileUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "firstName",
+              "displayName": "firstName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "lastName",
+              "displayName": "lastName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "fullName",
+              "displayName": "fullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "publicIdentifier",
+              "displayName": "publicIdentifier",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "headline",
+              "displayName": "headline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "userSkills",
+              "displayName": "userSkills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_size",
+              "displayName": "company_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_industry",
+              "displayName": "company_industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_linkedin_url",
+              "displayName": "company_linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company_website",
+              "displayName": "company_website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "connections",
+              "displayName": "connections",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "followers",
+              "displayName": "followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "urn",
+              "displayName": "urn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "profilePic",
+              "displayName": "profilePic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "about",
+              "displayName": "about",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "icebreaker",
+              "displayName": "icebreaker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "elevatorPitch",
+              "displayName": "elevatorPitch",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "callToAction",
+              "displayName": "callToAction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ps",
+              "displayName": "ps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "emailAddress",
+              "displayName": "emailAddress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "9f445cd0-e40f-4d19-bc7e-eff520d56884",
+      "name": "Store lead's data Google Sheets1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        2300,
+        300
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Check email status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get list of actors": {
+      "main": [
+        [
+          {
+            "node": "Get dataset from actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich linkedin data using lead magic": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAi": {
+      "main": [
+        [
+          {
+            "node": "Extract Icebreaker etc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Icebreaker etc": {
+      "main": [
+        [
+          {
+            "node": "Lead's data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store lead's data Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead's data": {
+      "main": [
+        [
+          {
+            "node": "Store lead's data Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check email status": {
+      "main": [
+        [
+          {
+            "node": "OpenAi",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ee91854e-829a-486f-abb3-e5b7d0eed4ca",
+  "meta": {
+    "instanceId": "c65600125d8a759efc8e20ca898a2b9db31191da64ddfdecc0880001870277cd"
+  },
+  "id": "eLDAwZCd2ZDDNcVE",
+  "tags": []
+}
