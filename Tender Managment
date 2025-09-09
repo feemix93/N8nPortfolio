@@ -1,0 +1,1149 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "fieldToSplitOut": "docs",
+        "options": {}
+      },
+      "id": "23a23897-f55d-4f7a-bb72-903c3ba6b604",
+      "name": "Split Out",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1000,
+        -160
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f5b1910e-329e-4558-9fe2-1a1c047ea95f",
+      "name": "When clicking \"Test workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3000,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "operation": "create",
+        "modelId": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "O3-MINI"
+        },
+        "name": "Tender Assistant",
+        "description": "Assistant to create summary of tender",
+        "instructions": "You will be provided pdf files from tender use them to create final summary of tender",
+        "knowledgeRetrieval": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1540,
+        -160
+      ],
+      "id": "5146e8c6-c58d-406e-a37f-da830233a78e",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "purpose": "assistants"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -400,
+        -160
+      ],
+      "id": "c4ddbf10-e38d-44ad-a37d-0b6736dd9454",
+      "name": "OpenAI2",
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Extract tender information').item.json[\"Tender Name\"] }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1mI6ykiyijmUAKh2S-hDQfaY6ZfluQ3d6",
+          "mode": "list",
+          "cachedResultName": "Tender_Management",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1mI6ykiyijmUAKh2S-hDQfaY6ZfluQ3d6"
+        },
+        "options": {}
+      },
+      "id": "93f83d94-6e28-4c4a-9805-c466ee87ca27",
+      "name": "Create folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1720,
+        -160
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $json.name }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "19157ed7-0f06-4355-a5d7-2b8df90555af",
+      "name": "Upload file",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -400,
+        -320
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8e176069-81ac-48f4-a424-cb3c8411d15e",
+              "name": "url",
+              "value": "https://canadabuys.canada.ca/en/tender-opportunities/tender-notice/ab-2025-02694",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bd037f78-c8c0-4e2f-a467-1b0a989ac4c1",
+      "name": "Tender Url",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -2560,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-http-request"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "aa2bccd8-ccbf-4199-bd2d-6e8012a2835f",
+      "name": "Fetch Tender Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2340,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "Description",
+              "cssSelector": "#edit-group-description > div > div.field.field--name-body.field--type-text-with-summary.field--label-hidden.h-600-overflow-h.tender-detail-description.field--item"
+            },
+            {
+              "key": "Solicitation number",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-general > div > div > div > div > div > div > div.field.field--name-field-tender-solicitation-number.field--type-string.field--label-above > p > span.field--item.display-flex"
+            },
+            {
+              "key": "Organisation",
+              "cssSelector": "#edit-group-contact-information > div > div.field.field--name-field-tender-contracting-entity.field--type-entity-reference-revisions.field--label-above > div.field--item > dl > div.col-md-6.tender-contact__group.tender-contact__name-info > dd > div"
+            },
+            {
+              "key": "Contract Duration",
+              "cssSelector": "#edit-group-description > div > div.field.field--name-field-tender-contract-date.field--type-daterange.field--label-above > div.field--item > p"
+            },
+            {
+              "key": "Closing date ",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-general > div > div > div > div > div > div > div.head-tender > div:nth-child(2) > div > p > span > span.dateclass"
+            },
+            {
+              "key": "Closing time",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-general > div > div > div > div > div > div > div.head-tender > div:nth-child(2) > div > p > span > span.timeclass"
+            },
+            {
+              "key": "Trade Agreement",
+              "cssSelector": "#edit-group-description > div > div.field.field--name-field-tender-trade-agreements.field--type-entity-reference.field--label-above > div > ul"
+            },
+            {
+              "key": "Contracting Authority",
+              "cssSelector": "#edit-group-contact-information > div > div.field.field--name-field-tender-contracting-officer.field--type-entity-reference-revisions.field--label-hidden.field--item.field--name-field-tender-contracting-officer-bt > dl > div.field.field--name-field-tender-contact-contactname.field--type-string.field--label-inline > dd > div"
+            },
+            {
+              "key": "Phone",
+              "cssSelector": "#edit-group-contact-information > div > div.field.field--name-field-tender-contracting-officer.field--type-entity-reference-revisions.field--label-hidden.field--item.field--name-field-tender-contracting-officer-bt > dl > div.field.field--name-field-tender-contact-phone.field--type-string.field--label-inline > dd > div > div"
+            },
+            {
+              "key": "Email",
+              "cssSelector": "#edit-group-contact-information > div > div.field.field--name-field-tender-contracting-officer.field--type-entity-reference-revisions.field--label-hidden.field--item.field--name-field-tender-contracting-officer-bt > dl > div.field.field--name-field-tender-contact-email.field--type-email.field--label-inline > dd > div"
+            },
+            {
+              "key": "Notice Type",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-summary > div > div > div > div > dl > div.views-field.views-field-field-tender-notice-type > dd > div > div"
+            },
+            {
+              "key": "Languages",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-summary > div > div > div > div > dl > div.views-field.views-field-field-tender-notice-languages > dd > div"
+            },
+            {
+              "key": "Region(s) of delivery",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-summary > div > div > div > div > dl > div.views-field.views-field-field-tender-delivery-regions > dd > div > div"
+            },
+            {
+              "key": "address_line",
+              "cssSelector": ".field--name-field-tender-contact-a-line p"
+            },
+            {
+              "key": "city_state_zip",
+              "cssSelector": ".field--name-field-tender-contact-a-city"
+            },
+            {
+              "key": "country",
+              "cssSelector": ".field--name-field-tender-contact-a-country"
+            },
+            {
+              "key": "Document_Names",
+              "cssSelector": "td.views-field-field-document-link a ",
+              "returnArray": true
+            },
+            {
+              "key": "Document_Urls",
+              "cssSelector": "td.views-field-field-document-link a ",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            },
+            {
+              "key": "Tender Name",
+              "cssSelector": "#block-eps-wxt-bootstrap-views-block-tender-details-general > div > div > div > div > div > h1 > span"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e7bc1691-d23c-4010-8589-ff7878e4cb0f",
+      "name": "Extract tender information",
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -2080,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const content = $('Extract tender information').first().json;\nconst docNames= content.Document_Names;\nconst docUrls = content.Document_Urls;\nconst docs = docNames.map((docN,index)=>({\n      name:docN,\n      url:docUrls[index]\n}))\nreturn{\njson:{\n  docs:docs\n}}"
+      },
+      "id": "7ce262a5-311d-4b89-9e6f-217692a51f36",
+      "name": "Extract tender documents names and urls",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1260,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-http-request"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "f06ff819-8542-4def-8960-f0434a69bad3",
+      "name": "Download tender document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -700,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Attach tender pdfs to open ai\n* Create respective folder in google drive for the tender.\n* Create open ai assistant.\n* Process each tender doc.\n",
+        "height": 420,
+        "width": 880
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1740,
+        -380
+      ],
+      "typeVersion": 1,
+      "id": "451182ec-c42f-4e03-ad87-09acfad1afa5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Fetch Tender Information\n* Set tender url\n* Fetch tender page\n* Extract tender information",
+        "height": 440,
+        "width": 700,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2580,
+        -380
+      ],
+      "typeVersion": 1,
+      "id": "e3c624b8-0941-41ad-89e4-e39e449455d6",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Upload tender docs\n* Download each tender.\n* Upload each tender to drive.\n* Upload each tender doc to open ai.",
+        "height": 480,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -760,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "7ebc1b0d-77ed-49b4-95ca-be916329e9c7",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "title": "={{ $('Extract tender information').item.json['Tender Name'] }}",
+        "sheetsUi": {
+          "sheetValues": [
+            {
+              "title": "={{ $('Extract tender information').item.json['Tender Name'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0132b23f-0c32-4d30-bd2f-fbc9abb1f17a",
+      "name": "Create spreadsheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        500,
+        -300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OhFI0Xcw8c64fyvD",
+          "name": "Google Sheets Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Create spreadsheet').item.json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Create spreadsheet').item.json.sheets[0].properties.sheetId }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Solicitaion Number": "={{ $json['Solicitaion Number'] }}",
+            "Closing date": "={{ $json['Closing date'] }}",
+            "Contracting Authority": "={{ $json['Contracting Authority'] }}",
+            "Phone": "={{ $json.Phone }}",
+            "Email": "={{ $json.Email }}",
+            "Tender Url": "={{ $json['Tender Url'] }}",
+            "Address": "={{ $json.Address }}",
+            "Tender Dcouments": "={{ $json['Tender Dcouments'].join('\\n') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Solicitaion Number",
+              "displayName": "Solicitaion Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Closing date",
+              "displayName": "Closing date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Contracting Authority",
+              "displayName": "Contracting Authority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tender Dcouments",
+              "displayName": "Tender Dcouments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tender Url",
+              "displayName": "Tender Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tender Question and Answers",
+              "displayName": "Tender Question and Answers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3506c157-0ef6-4fdc-8f2c-72f6d525516e",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [
+        1060,
+        -300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "OhFI0Xcw8c64fyvD",
+          "name": "Google Sheets Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Create spreadsheet').item.json.spreadsheetId }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        }
+      },
+      "id": "4fc62a58-1760-46ff-b603-0a2643b1a82b",
+      "name": "Move file",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1220,
+        -300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "={{ $('OpenAI').item.json.id }}",
+          "mode": "id"
+        },
+        "prompt": "define",
+        "text": "=Consider \"Apex Bit Solutions - Company Profile.pdf\" provided to you, which contains current company information. Use it to compare the requirements in the tender documents {{ $('Extract tender information').item.json.Document_Names }}.\n\nYour task:\n1. Extract the questions asked in the tender documents.\n2. Provide answers to these questions using the company information document and tender documents.\n3. Provide a concise summary of the tender and company alignment.\n4. Ignore any French documents.\n5. Provide concise answers strictly based on the provided documents.\n6. Do NOT include any reasoning, notes, or explanations.\n7. Format the output exactly as JSON.\n\nOutput format:\n\n{\n  \"Tender Question and Answers\": [\n    {\n      \"question\": \"Insert extracted tender question here\",\n      \"answer\": \"Insert answer using company and tender documents here\"\n    },\n    {\n      \"question\": \"Next extracted question\",\n      \"answer\": \"Answer using company and tender documents\"\n    }\n  ],\n  \"Summary\": \"Provide a concise summary of the tender and company alignment here.\"\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        200,
+        -300
+      ],
+      "id": "a4774322-586f-4329-a3bf-122ed4f710c6",
+      "name": "Generate tender summary",
+      "executeOnce": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a004cfb-b2a9-49fc-b678-3f047e3b0bcf",
+              "name": "Name",
+              "value": "={{ $('Extract tender information').item.json['Tender Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7f6b40d9-4b89-4739-82d5-628578e3d24d",
+              "name": "=Solicitaion Number",
+              "value": "={{ $('Extract tender information').item.json['Solicitation number'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7be3adbb-58b4-4c94-ac78-fcc611d1fe6b",
+              "name": "Closing date",
+              "value": "={{$('Extract tender information').item.json['Closing date '] }} ,{{ $('Extract tender information').item.json['Closing time'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f0e664d9-c7a6-4d2f-a386-a746f158ebb1",
+              "name": "Contracting Authority",
+              "value": "={{$('Extract tender information').item.json['Contracting Authority'] }}",
+              "type": "string"
+            },
+            {
+              "id": "f764a364-112d-48e4-bda9-b261c236467e",
+              "name": "Phone",
+              "value": "={{ $('Extract tender information').item.json.Phone }}",
+              "type": "string"
+            },
+            {
+              "id": "ea239952-528d-4974-84c3-d032ce2d6dda",
+              "name": "Email",
+              "value": "={{ $('Extract tender information').item.json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "8561de0a-2fe4-4f74-a2d2-ec2f3c2ad307",
+              "name": "Tender Dcouments",
+              "value": "={{$('Extract tender information').item.json.Document_Urls }}",
+              "type": "array"
+            },
+            {
+              "id": "a3297ea1-8b7e-44d9-baea-e37a2fa09e65",
+              "name": "Tender Url",
+              "value": "={{ $('Tender Url').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "ec752014-ae75-4629-966e-bc89456c0225",
+              "name": "Address",
+              "value": "={{ $('Extract tender information').item.json.address_line }} {{ $('Extract tender information').item.json.city_state_zip }} {{ $('Extract tender information').item.json.country }}",
+              "type": "string"
+            },
+            {
+              "id": "cabd0ccd-57ea-42e6-8246-d524847e6f7e",
+              "name": "Summary",
+              "value": "={{ $json.Summary }}",
+              "type": "string"
+            },
+            {
+              "id": "7d439e2f-3015-4c97-9fb9-e3373954dc2c",
+              "name": "Tender Question and Answers",
+              "value": "={{ $json[\"Tender Question and Answers\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5881a3e5-e0d6-4f0e-8f4d-373554a0af48",
+      "name": "Prepare data for spreadsheet",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        880,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Generate tender summary and save tender information in spreadsheet\n* Generate summary using uploaded tender docs.\n* Create spreadsheet.\n* Prepare extracted tender information.\n* Save extracted tender information sheet.\n* Move the sheet the respective tender directory in google drive.",
+        "height": 440,
+        "width": 1180,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        -500
+      ],
+      "typeVersion": 1,
+      "id": "41d333eb-2f85-4a35-aad5-d628004cec1a",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "operation": "deleteAssistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "={{ $('OpenAI').item.json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        200
+      ],
+      "id": "639cdaa0-58b7-4152-a57d-e79a556940fd",
+      "name": "Delete an assistant",
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        820,
+        180
+      ],
+      "id": "d859bf53-097e-436e-9c49-073d9240be25",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "## Delete assistant and files uploaded\n* Delete an open ai asssitant.\n* List all files.\n* Loop over all files.\n* Delete each file.",
+        "height": 360,
+        "width": 1120,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        180,
+        20
+      ],
+      "typeVersion": 1,
+      "id": "ef2e7d25-f38f-48f4-ab7b-e86efbd8014a",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "list",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        400,
+        200
+      ],
+      "id": "1d6eb0ee-90ea-4ca8-bdda-755dc4df5474",
+      "name": "List all files",
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1140,
+        180
+      ],
+      "id": "45e410a5-1886-4eba-8a5c-f2e9c8cef3d4",
+      "name": "Delete file",
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5a292114-e8d2-48d1-9aa7-9ffb15e2f554",
+              "leftValue": "={{ $json.filename }}",
+              "rightValue": "=Apex Bit Solutions - Company Proifle",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        200
+      ],
+      "id": "fbd752bd-4cad-4e07-b65c-373574c27667",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $('Generate tender summary').first().json.output;\n\n// adjust if your node name is different\n\n// Parse the string into JSON\nconst parsed = JSON.parse(text);\n\n// Return only the Tender Question and Answers and Summary\nreturn [\n  {\n    json: {\n      \"Tender Question and Answers\": parsed[\"Tender Question and Answers\"],\n      \"Summary\": parsed[\"Summary\"]\n    }\n  }\n];\n\n// Step 3: Return in n8n JSON format\nreturn [\n  {\n    json: {\n      qa: results\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        -300
+      ],
+      "id": "c054f8dc-faba-4e4a-a7ec-03caa5008541",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "={{ $('OpenAI').item.json.id }}",
+          "mode": "id"
+        },
+        "prompt": "define",
+        "text": "=Consider Apex Bit Solutions - Company Proifle.pdf provided to you which contains current company information use it to compare the requirements in tender documents {{ $('Extract tender information').item.json.Document_Names }} \nCan you please extract the the questions asked in tender documents?\n\nGenerate a sections titled:\n\nTender Question and Answers:\n\n-extract the the questions asked in tender documents and answers using the company information document and tender documents\n- Provide concise answers strictly using the information from the documents.\n- Do NOT include any reasoning, notes, or explanations.\n- Format the output exactly as JSON\n\nSummary:\nIgnore the french documents and generate the summary.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -200,
+        240
+      ],
+      "id": "1106de14-8da4-4073-b8a1-ffdef8bd2a40",
+      "name": "Generate tender summary1",
+      "executeOnce": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "fBz4yRHjbwdKYWJT",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Download tender document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Test workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Tender Url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Extract tender documents names and urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI2": {
+      "main": [
+        [
+          {
+            "node": "Generate tender summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tender Url": {
+      "main": [
+        [
+          {
+            "node": "Fetch Tender Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Tender Page": {
+      "main": [
+        [
+          {
+            "node": "Extract tender information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract tender information": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract tender documents names and urls": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download tender document": {
+      "main": [
+        [
+          {
+            "node": "OpenAI2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        []
+      ]
+    },
+    "Generate tender summary": {
+      "main": [
+        [
+          {
+            "node": "Create spreadsheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete an assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare data for spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an assistant": {
+      "main": [
+        [
+          {
+            "node": "List all files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Delete file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List all files": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete file": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Prepare data for spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49b797bdec8802724441f6b04a271b8ba4b310cdaeaa32525c6aed811a29f986"
+  }
+}
