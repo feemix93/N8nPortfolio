@@ -1,0 +1,329 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## n8n Workflow Backup System\n\nThis workflow automatically backs up all your n8n workflows to Google Drive.\n\n**Setup Required:**\n1. Configure n8n credentials in the n8n nodes\n2. Set your Google Drive folder ID in the Google Drive node\n3. Test with manual trigger first\n\n**What it does:**\n1. Gets list of all workflows from your n8n instance\n2. Downloads each workflow as JSON\n3. Converts to files and uploads to Google Drive\n4. Runs daily at 2:30 AM automatically",
+        "height": 464,
+        "width": 389
+      },
+      "id": "c56fa823-a5ac-4528-939e-f384ae29e085",
+      "name": "Documentation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -600,
+        -580
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 2,
+              "minute": 30
+            }
+          ]
+        }
+      },
+      "name": "Daily Backup Schedule",
+      "type": "n8n-nodes-base.cron",
+      "position": [
+        -600,
+        140
+      ],
+      "typeVersion": 1,
+      "id": "1ec232b5-ae83-4610-8e14-319bd0534c92"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.apexbit.ca/api/v1/workflows",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "name": "Get All Workflows",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -100,
+        -220
+      ],
+      "typeVersion": 4.2,
+      "id": "be66d101-fd9c-4c29-8f6f-e0653173a307",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "workflow_data",
+              "name": "workflow_data",
+              "type": "object",
+              "value": "={{ $json }}"
+            },
+            {
+              "id": "workflow_name",
+              "name": "workflow_name",
+              "type": "string",
+              "value": "={{ $json.name || 'Untitled_Workflow_' + $json.id }}"
+            },
+            {
+              "id": "backup_timestamp",
+              "name": "backup_timestamp",
+              "type": "string",
+              "value": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm:ss\") }}\n\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Prepare Workflow Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -160,
+        120
+      ],
+      "typeVersion": 3.4,
+      "id": "07990b11-f29c-4570-bed6-ea0fe7dee390"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "mode": "each",
+        "binaryPropertyName": "={{ $json.name }}",
+        "options": {
+          "fileName": "={{ $json.name }}"
+        }
+      },
+      "name": "Convert to JSON File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        360,
+        120
+      ],
+      "typeVersion": 1.1,
+      "id": "68408f3d-665a-4c6d-9e10-d5469c5fe9e9"
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "={{ $('Split Out').item.json.name }}",
+        "name": "={{ $('Split Out').item.json.name }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1JXz-5Yub_BsO0wQtf9fQkzOJ8ENQrlTg",
+          "mode": "list",
+          "cachedResultName": "n8n-backups",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1JXz-5Yub_BsO0wQtf9fQkzOJ8ENQrlTg"
+        },
+        "options": {}
+      },
+      "name": "Upload to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        640,
+        120
+      ],
+      "typeVersion": 3,
+      "id": "24c5b078-69bd-43f9-b630-88a8ff1a2ac8",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AG9y71mYxOrXfDNW",
+          "name": "Google Drive Kiran"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "total_workflows",
+              "name": "total_workflows",
+              "type": "number",
+              "value": "={{ $('HTTP Request').item.json.data.length }}"
+            },
+            {
+              "id": "successful_backups",
+              "name": "successful_backups",
+              "type": "number",
+              "value": "={{ $('HTTP Request').item.json.data.length }}"
+            },
+            {
+              "id": "completion_time",
+              "name": "=completion_time",
+              "type": "string",
+              "value": "={{ $now.toFormat(\"yyyy-MM-dd HH:mm:ss\") }}\n"
+            },
+            {
+              "id": "backup_summary",
+              "name": "backup_summary",
+              "type": "string",
+              "value": "=Successfully backed up {{ $('HTTP Request').item.json.data.length }} workflows to Google Drive"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Backup Summary",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        920,
+        120
+      ],
+      "typeVersion": 3.4,
+      "id": "f7cc1dbc-ff62-4828-90a2-a0da10d9f5be"
+    },
+    {
+      "parameters": {
+        "url": "https://n8n.apexbit.ca/api/v1/workflows",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWExZDY1Yi05M2YwLTQwZjctYmI0Ni01MWM1ODNjMWY0YjIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzU3MDA4MDcwfQ.jL_HlC-rfMuQEmuYZTXrSObjxSkIm0zB_l3M4J94wfk"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -360,
+        120
+      ],
+      "id": "a87a1d79-291e-4a56-8344-9eec72b712fb",
+      "name": "HTTP Request",
+      "credentials": {
+        "n8nApi": {
+          "id": "1sNuljbiKhqcl8iz",
+          "name": "n8n account 6"
+        },
+        "httpBasicAuth": {
+          "id": "earGO8EB6tkcdagA",
+          "name": "n8n auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "workflow_data.data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        60,
+        120
+      ],
+      "id": "84ae13a9-2746-42f8-8561-c6197feeb620",
+      "name": "Split Out"
+    }
+  ],
+  "connections": {
+    "Daily Backup Schedule": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Workflows": {
+      "main": [
+        []
+      ]
+    },
+    "Prepare Workflow Data": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to JSON File": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Backup Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Prepare Workflow Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Convert to JSON File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49b797bdec8802724441f6b04a271b8ba4b310cdaeaa32525c6aed811a29f986"
+  }
+}
