@@ -1,0 +1,620 @@
+{
+  "name": "multiple products v2",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "https://api.xero.com/api.xro/2.0/Invoices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xero-tenant-id",
+              "value": "c9427dfa-16c9-4aba-aebb-194e0b4885d3"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Type",
+              "value": "ACCREC"
+            },
+            {
+              "name": "Contact.ContactId",
+              "value": "={{ $json.ContactID }}"
+            },
+            {
+              "name": "Date",
+              "value": "2024-06-27"
+            },
+            {
+              "name": "LineItems",
+              "value": "={{ $('Code').item.json.lineItems }}"
+            },
+            {
+              "name": "CurrencyCode",
+              "value": "USD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f49661c3-1b17-48ff-a495-83587b0b076e",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        1180
+      ],
+      "credentials": {
+        "oAuth2Api": {
+          "id": "YJmIfIeXTjGF0mJf",
+          "name": "Xero credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lineItems = $('Shopify Order Creation Trigger').first().json.line_items;\nconst finalLineItems = [];\nconst email = $('Shopify Order Creation Trigger').first().json.contact_email;\nconst firstName = $('Shopify Order Creation Trigger').first().json.customer?.first_name;\n\n    lineItems.forEach((line)=>{\n     let lineItem={};\n     lineItem.Description =line.name;\n     lineItem.Quantity =line.quantity;\n      lineItem.UnitAmount =line.price;\n      if ($('Shopify1').all().find((product)=>\n       {\nreturn product.json.variants[0].product_id===line.product_id}).json.variants[0].barcode) {\n        lineItem.ItemCode=$('Shopify1').all().find((product)=>\n       {\nreturn product.json.variants[0].product_id===line.product_id}).json.variants[0].barcode;\n      }\n      lineItem.TaxAmount =line.tax_lines[0].rate;\n      lineItem.DiscountAmount =line.total_discount;\n      finalLineItems.push(lineItem)\n})\nreturn{\njson:{\nemail:email ? email:\"danielboone344@gmail.com\" ,\nfirstName:  firstName ? firstName : \"Daniel Boone\" ,\n  lineItems:finalLineItems\n}}"
+      },
+      "id": "76415bd0-f40e-4f5c-a22d-91accdcbaff5",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -940,
+        740
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "getAll",
+        "organizationId": "c9427dfa-16c9-4aba-aebb-194e0b4885d3",
+        "options": {
+          "where": "=EmailAddress== \"{{ $json.email }}\""
+        }
+      },
+      "id": "6295cf1b-ef2e-49a3-8793-ffe655cfd26d",
+      "name": "Xero5",
+      "type": "n8n-nodes-base.xero",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        700
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "xeroOAuth2Api": {
+          "id": "bP9yg4IHomkE3jHQ",
+          "name": "Xero account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "8d349f27-1a8c-4399-86b9-ee7de385d98c",
+              "leftValue": "={{ $json.ContactID }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5cc1832c-04e1-4569-b076-2fb5d6920cf2",
+      "name": "If2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        740
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "organizationId": "c9427dfa-16c9-4aba-aebb-194e0b4885d3",
+        "name": "={{ $('Code').item.json.firstName }}",
+        "additionalFields": {
+          "emailAddress": "={{ $('Code').item.json.email }}"
+        }
+      },
+      "id": "38635977-d6b7-4cd0-9ef6-e06bfbbcbbf1",
+      "name": "Xero6",
+      "type": "n8n-nodes-base.xero",
+      "typeVersion": 1,
+      "position": [
+        220,
+        560
+      ],
+      "credentials": {
+        "xeroOAuth2Api": {
+          "id": "bP9yg4IHomkE3jHQ",
+          "name": "Xero account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "product",
+        "operation": "get",
+        "productId": "={{ $json.product_id }}",
+        "additionalFields": {}
+      },
+      "id": "c02ac210-158e-4fa1-99da-48f24af35b04",
+      "name": "Shopify1",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        320
+      ],
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "24aYRCgN9j0MVoa5",
+          "name": "Shopify Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "line_items",
+        "options": {}
+      },
+      "id": "e4cefffa-eb5e-41b2-a46d-d437a413af36",
+      "name": "Split Out1",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1380,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "topic": "orders/create"
+      },
+      "id": "5d6a6037-3c1a-40d5-b794-34b089395108",
+      "name": "Shopify Order Creation Trigger",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1340,
+        780
+      ],
+      "webhookId": "87afd09f-3dcf-465f-ab62-e07d7e5806c1",
+      "credentials": {
+        "shopifyAccessTokenApi": {
+          "id": "24aYRCgN9j0MVoa5",
+          "name": "Shopify Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Shopify Order Creation Trigger": [
+      {
+        "json": {
+          "id": 5602916106391,
+          "admin_graphql_api_id": "gid://shopify/Order/5602916106391",
+          "app_id": 1354745,
+          "browser_ip": "154.192.48.59",
+          "buyer_accepts_marketing": false,
+          "cancel_reason": null,
+          "cancelled_at": null,
+          "cart_token": null,
+          "checkout_id": 28312611618967,
+          "checkout_token": "bbbe2e2f5c0867874d3b92d892ae74c3",
+          "client_details": {
+            "accept_language": null,
+            "browser_height": null,
+            "browser_ip": "154.192.48.59",
+            "browser_width": null,
+            "session_hash": null,
+            "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+          },
+          "closed_at": null,
+          "company": null,
+          "confirmation_number": "N5TVJUEE1",
+          "confirmed": true,
+          "contact_email": "ayumu.hirano@example.com",
+          "created_at": "2024-07-07T11:57:14-04:00",
+          "currency": "PKR",
+          "current_subtotal_price": "330.00",
+          "current_subtotal_price_set": {
+            "shop_money": {
+              "amount": "330.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "330.00",
+              "currency_code": "PKR"
+            }
+          },
+          "current_total_additional_fees_set": null,
+          "current_total_discounts": "0.00",
+          "current_total_discounts_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "current_total_duties_set": null,
+          "current_total_price": "382.80",
+          "current_total_price_set": {
+            "shop_money": {
+              "amount": "382.80",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "382.80",
+              "currency_code": "PKR"
+            }
+          },
+          "current_total_tax": "52.80",
+          "current_total_tax_set": {
+            "shop_money": {
+              "amount": "52.80",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "52.80",
+              "currency_code": "PKR"
+            }
+          },
+          "customer_locale": "en",
+          "device_id": null,
+          "discount_codes": [],
+          "email": "ayumu.hirano@example.com",
+          "estimated_taxes": false,
+          "financial_status": "paid",
+          "fulfillment_status": null,
+          "landing_site": null,
+          "landing_site_ref": null,
+          "location_id": 71000195223,
+          "merchant_of_record_app_id": null,
+          "name": "#1116",
+          "note": null,
+          "note_attributes": [],
+          "number": 116,
+          "order_number": 1116,
+          "order_status_url": "https://quickstart-2d276016.myshopify.com/64729350295/orders/8ac7101f73c78dc085300657d9f6918c/authenticate?key=09b5a4a94ab069ff45c7d283219b0328&none=VQZdAVBGUF9bQ1JE",
+          "original_total_additional_fees_set": null,
+          "original_total_duties_set": null,
+          "payment_gateway_names": [
+            "manual"
+          ],
+          "phone": "+16135550127",
+          "po_number": null,
+          "presentment_currency": "PKR",
+          "processed_at": "2024-07-07T11:57:14-04:00",
+          "reference": "fb9e55372e3633d4451dfdc04ac65a09",
+          "referring_site": null,
+          "source_identifier": "fb9e55372e3633d4451dfdc04ac65a09",
+          "source_name": "shopify_draft_order",
+          "source_url": null,
+          "subtotal_price": "330.00",
+          "subtotal_price_set": {
+            "shop_money": {
+              "amount": "330.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "330.00",
+              "currency_code": "PKR"
+            }
+          },
+          "tags": "",
+          "tax_exempt": false,
+          "tax_lines": [
+            {
+              "price": "52.80",
+              "rate": 0.16,
+              "title": "GST",
+              "price_set": {
+                "shop_money": {
+                  "amount": "52.80",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "52.80",
+                  "currency_code": "PKR"
+                }
+              },
+              "channel_liable": false
+            }
+          ],
+          "taxes_included": false,
+          "test": false,
+          "token": "8ac7101f73c78dc085300657d9f6918c",
+          "total_discounts": "0.00",
+          "total_discounts_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_line_items_price": "330.00",
+          "total_line_items_price_set": {
+            "shop_money": {
+              "amount": "330.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "330.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_outstanding": "0.00",
+          "total_price": "382.80",
+          "total_price_set": {
+            "shop_money": {
+              "amount": "382.80",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "382.80",
+              "currency_code": "PKR"
+            }
+          },
+          "total_shipping_price_set": {
+            "shop_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "0.00",
+              "currency_code": "PKR"
+            }
+          },
+          "total_tax": "52.80",
+          "total_tax_set": {
+            "shop_money": {
+              "amount": "52.80",
+              "currency_code": "PKR"
+            },
+            "presentment_money": {
+              "amount": "52.80",
+              "currency_code": "PKR"
+            }
+          },
+          "total_tip_received": "0.00",
+          "total_weight": 0,
+          "updated_at": "2024-07-07T11:57:15-04:00",
+          "user_id": 85906260119,
+          "billing_address": null,
+          "customer": {
+            "id": 7402438099095,
+            "email": "ayumu.hirano@example.com",
+            "created_at": "2024-06-04T10:32:48-04:00",
+            "updated_at": "2024-07-07T11:57:15-04:00",
+            "first_name": "Ayumu",
+            "last_name": "Hirano",
+            "state": "disabled",
+            "note": null,
+            "verified_email": true,
+            "multipass_identifier": null,
+            "tax_exempt": false,
+            "phone": "+16135550127",
+            "email_marketing_consent": {
+              "state": "not_subscribed",
+              "opt_in_level": "single_opt_in",
+              "consent_updated_at": null
+            },
+            "sms_marketing_consent": {
+              "state": "not_subscribed",
+              "opt_in_level": "single_opt_in",
+              "consent_updated_at": null,
+              "consent_collected_from": "OTHER"
+            },
+            "tags": "",
+            "currency": "PKR",
+            "tax_exemptions": [],
+            "admin_graphql_api_id": "gid://shopify/Customer/7402438099095"
+          },
+          "discount_applications": [],
+          "fulfillments": [],
+          "line_items": [
+            {
+              "id": 13111825039511,
+              "admin_graphql_api_id": "gid://shopify/LineItem/13111825039511",
+              "attributed_staffs": [],
+              "current_quantity": 1,
+              "fulfillable_quantity": 1,
+              "fulfillment_service": "manual",
+              "fulfillment_status": null,
+              "gift_card": false,
+              "grams": 0,
+              "name": "Air Jordan 1  High Light Smoke Grey",
+              "price": "330.00",
+              "price_set": {
+                "shop_money": {
+                  "amount": "330.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "330.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "product_exists": true,
+              "product_id": 8472377622679,
+              "properties": [],
+              "quantity": 1,
+              "requires_shipping": true,
+              "sku": "555088-126",
+              "taxable": true,
+              "title": "Air Jordan 1  High Light Smoke Grey",
+              "total_discount": "0.00",
+              "total_discount_set": {
+                "shop_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                },
+                "presentment_money": {
+                  "amount": "0.00",
+                  "currency_code": "PKR"
+                }
+              },
+              "variant_id": 44427990106263,
+              "variant_inventory_management": null,
+              "variant_title": null,
+              "vendor": "Quickstart (2d276016)",
+              "tax_lines": [
+                {
+                  "channel_liable": false,
+                  "price": "52.80",
+                  "price_set": {
+                    "shop_money": {
+                      "amount": "52.80",
+                      "currency_code": "PKR"
+                    },
+                    "presentment_money": {
+                      "amount": "52.80",
+                      "currency_code": "PKR"
+                    }
+                  },
+                  "rate": 0.16,
+                  "title": "GST"
+                }
+              ],
+              "duties": [],
+              "discount_allocations": []
+            }
+          ],
+          "payment_terms": null,
+          "refunds": [],
+          "shipping_address": null,
+          "shipping_lines": []
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Xero5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Xero5": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Xero6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Xero6": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Shopify1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify Order Creation Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d9ab0f10-2a73-461e-929c-bf865aad06a9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a7efaf6bfdfb5e336677c322b23d987d77c5f5345c8a5c8afbeb6f30ac6facb5"
+  },
+  "id": "CmccGyFDn3FpEng8",
+  "tags": []
+}
