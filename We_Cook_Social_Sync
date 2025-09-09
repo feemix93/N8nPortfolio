@@ -1,0 +1,517 @@
+{
+  "name": "We Cook Social Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "feedUrl": "https://www.wecook.fr/feed"
+      },
+      "id": "994368aa-85b0-4370-a50f-937d9556fb30",
+      "name": "RSS Feed Trigger",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -860,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 50
+            }
+          ]
+        }
+      },
+      "id": "70df603d-2bb4-44a5-91cf-77f31dfc9f95",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -780,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-sandbox.pinterest.com/v5/pins",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer "
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"link\": \"https://www.pinterest.com/\",\n\"title\": \"test\",\n\"description\": \"test\",\n\"dominant_color\": \"#6E7874\",\n\"alt_text\": \"test\",\n\"board_id\": \"977703469044434571\",\n\"media_source\": \n{\n\"source_type\": \"image_url\",\n\"url\":\"{{ $('Pinterest Img URL Request').item.json.data }}\" ,\n\"is_standard\": true\n}\n\n}  ",
+        "options": {}
+      },
+      "id": "9e09f8cc-e161-482f-8aec-faacdfcfcfd9",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://us-central1-job-scraper-chrome-extension.cloudfunctions.net/function-1",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.link }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dcb54697-e767-44a8-b2d6-a0e83c880316",
+      "name": "Img URL Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -720,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/me/photos",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $('RSS Feed Trigger').item.json.title }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $json.access_token }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $('Img URL Request').item.json.data }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "088996f9-8ce7-496c-b1ca-cf8877c6b31c",
+      "name": "IMG + Title for FB request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $json.body.post_id }}/comments ",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $('RSS Feed Trigger').item.json.link }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Fetching FB Page access token').item.json.access_token }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "5c5bc4e0-35a8-4f26-90ba-4b7fbe1da0f7",
+      "name": "FB Comment Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "fbtoken",
+        "options": {}
+      },
+      "id": "2c36d93f-7dcf-411f-9c5e-928c172f7ac5",
+      "name": "Fetching FB Page access token",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        860
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "FqXbSu6RCYuaHpyu",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://onesignal.com/api/v1/notifications",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic "
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\"included_segments\": [\n    \"Subscribed Users\"\n  ],\n  \"app_id\": \"a9aa2981-8426-4d81-ab15-f0ece3e2aac1\",\n  \"headings\": {\"fr\": \"{{ $('RSS Feed Trigger').item.json.title }}{{ $('RSS Feed Trigger').item.json.title }}\"},\n \n  \"url\": \"{{ $('RSS Feed Trigger').item.json.link }}\",\n  \"big_picture\": \"{{ $('Img URL Request').item.json.data }}\"\n} ",
+        "options": {}
+      },
+      "id": "bb10409e-8926-44f9-a3cc-6f651b176578",
+      "name": "Onesignal Notification Create Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        140,
+        1100
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $('RSS Feed Trigger').item.json.title }}\n {{ $('RSS Feed Trigger').item.json.link }}",
+        "additionalFields": {}
+      },
+      "id": "06da121d-b792-4d91-8933-6b0640dacfc8",
+      "name": "Tweet Img + Link",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        160,
+        820
+      ],
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "jBnLmdzZLSADTzxq",
+          "name": "X account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://us-central1-job-scraper-chrome-extension.cloudfunctions.net/function-2",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('RSS Feed Trigger').item.json.link }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3dfb8fb5-4e3a-45ef-be1d-8b9be0c1dc13",
+      "name": "Pinterest Img URL Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -500,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v12.0/oauth/access_token",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "fb_exchange_token"
+            },
+            {
+              "name": "client_id",
+              "value": "982048950133980"
+            },
+            {
+              "name": "client_secret",
+              "value": "42dc833a6f26acc7fdfe63a8b160bf84"
+            },
+            {
+              "name": "fb_exchange_token",
+              "value": "={{ $json.access_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0159d69a-ae16-4a52-9432-4b6ccee7ce80",
+      "name": "Fetch FB Long Live Access Token Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -460,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "fbtoken",
+        "options": {}
+      },
+      "id": "c61bd081-ce80-4c52-a306-f6badd764af3",
+      "name": "Fetch FB Token for Extending ",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        620
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "FqXbSu6RCYuaHpyu",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "fbtoken",
+        "updateKey": "_id",
+        "fields": "=access_token",
+        "options": {}
+      },
+      "id": "53837ed5-0dc1-4bf0-a6ad-43cd67735032",
+      "name": "Storing Long Live Token",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        680
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "FqXbSu6RCYuaHpyu",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8ba6b77a-232e-4b0b-9a3b-22d080571d26",
+              "name": "access_token",
+              "value": "={{ $json.access_token }}",
+              "type": "string"
+            },
+            {
+              "id": "ba1e9354-3ede-4dcd-8d25-0356e23d94e4",
+              "name": "_id",
+              "value": "={{ $('Fetch FB Token for Extending ').item.json._id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "247454b4-fa0d-416c-b11d-b2b6d6eb7b4c",
+      "name": "Setting Variables of Access Token to Store in DB",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -260,
+        400
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch FB Token for Extending ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Trigger": {
+      "main": [
+        [
+          {
+            "node": "Img URL Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Img URL Request": {
+      "main": [
+        [
+          {
+            "node": "Pinterest Img URL Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMG + Title for FB request": {
+      "main": [
+        [
+          {
+            "node": "FB Comment Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FB Comment Request": {
+      "main": [
+        [
+          {
+            "node": "Tweet Img + Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetching FB Page access token": {
+      "main": [
+        [
+          {
+            "node": "IMG + Title for FB request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onesignal Notification Create Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinterest Img URL Request": {
+      "main": [
+        [
+          {
+            "node": "Fetching FB Page access token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tweet Img + Link": {
+      "main": [
+        [
+          {
+            "node": "Onesignal Notification Create Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch FB Long Live Access Token Request": {
+      "main": [
+        [
+          {
+            "node": "Setting Variables of Access Token to Store in DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch FB Token for Extending ": {
+      "main": [
+        [
+          {
+            "node": "Fetch FB Long Live Access Token Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setting Variables of Access Token to Store in DB": {
+      "main": [
+        [
+          {
+            "node": "Storing Long Live Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a66bb255-c26f-4a8e-b6f4-cb0fcbfe8a11",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b4fda353d13fbd40c0e4a83897072a05fd9b2346cbbd6e28f12e40f7f29a7e2f"
+  },
+  "id": "0lqxs0iSEGqqLeeZ",
+  "tags": []
+}
